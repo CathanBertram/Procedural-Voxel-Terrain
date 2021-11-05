@@ -52,16 +52,23 @@ public class TempVoxel : MonoBehaviour
         for (int i = 0; i < 6; i++)
         {
             if(!CheckVoxel(position + VoxelData.faceChecks[i]))
-                for (int j = 0; j < 6; j++)
-                {
-                    var triangleIndex = VoxelData.voxelTriangles[i,j];
-                    vertices.Add(VoxelData.voxelVertices[triangleIndex] + position);
-                    triangles.Add(vertexIndex);
-                    
-                    uvs.Add(VoxelData.voxelUVs[j]);
-                    
-                    vertexIndex++;
-                }
+            {
+                vertices.Add(position + VoxelData.voxelVertices[VoxelData.voxelTriangles[i, 0]]);
+                vertices.Add(position + VoxelData.voxelVertices[VoxelData.voxelTriangles[i, 1]]);
+                vertices.Add(position + VoxelData.voxelVertices[VoxelData.voxelTriangles[i, 2]]);
+                vertices.Add(position + VoxelData.voxelVertices[VoxelData.voxelTriangles[i, 3]]);
+                uvs.Add(VoxelData.voxelUVs[0]);
+                uvs.Add(VoxelData.voxelUVs[1]);
+                uvs.Add(VoxelData.voxelUVs[2]);
+                uvs.Add(VoxelData.voxelUVs[3]);
+                triangles.Add(vertexIndex);
+                triangles.Add(vertexIndex + 1);
+                triangles.Add(vertexIndex + 2);
+                triangles.Add(vertexIndex + 2);
+                triangles.Add(vertexIndex + 1);
+                triangles.Add(vertexIndex + 3);
+                vertexIndex += 4;
+            }
         }
     }
 
