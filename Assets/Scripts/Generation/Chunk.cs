@@ -46,7 +46,8 @@ namespace Generation
                 {
                     for (int z = 0; z < VoxelData.chunkWidth; z++)
                     {
-                        AddVoxelToChunk(new Vector3(x,y,z));
+                        if (voxelMap[x,y,z] != VoxelData.airID)
+                            AddVoxelToChunk(new Vector3(x,y,z));
                     }
                 }
             }
@@ -77,18 +78,51 @@ namespace Generation
 
         private void PopulateVoxelMap()
         {
-            for (int y = 0; y < VoxelData.chunkHeight; y++)
+            // for (int y = 0; y < VoxelData.chunkHeight; y++)
+            // {
+            //     for (int x = 0; x < VoxelData.chunkWidth; x++)
+            //     {
+            //         for (int z = 0; z < VoxelData.chunkWidth; z++)
+            //         {
+            //             if (y == VoxelData.chunkHeight - 1)
+            //                 voxelMap[x, y, z] = ChunkGenerator.Instance.BlockTypeDictionary["Grass"];
+            //             else if (y >= VoxelData.chunkHeight - 3)
+            //                 voxelMap[x, y, z] = ChunkGenerator.Instance.BlockTypeDictionary["Dirt"];
+            //             else
+            //                 voxelMap[x, y, z] = ChunkGenerator.Instance.BlockTypeDictionary["Stone"];
+            //         }
+            //     }
+            // }
+            for (int x = 0; x < VoxelData.chunkWidth; x++)
             {
-                for (int x = 0; x < VoxelData.chunkWidth; x++)
+                for (int y = 0; y < VoxelData.chunkHeight; y++)
                 {
                     for (int z = 0; z < VoxelData.chunkWidth; z++)
                     {
-                        if (y == VoxelData.chunkHeight - 1)
-                            voxelMap[x, y, z] = 1;
-                        else if (y >= VoxelData.chunkHeight - 3)
-                            voxelMap[x, y, z] = 2;
+                        voxelMap[x, y, z] = VoxelData.airID;
+                    }
+                }
+            }
+
+
+            for (int x = 0; x < VoxelData.chunkWidth; x++)
+            {
+                for (int z = 0; z < VoxelData.chunkWidth; z++)
+                {
+                    var y = VoxelData.seaLevel + Random.Range(0, 4);
+                    voxelMap[x,y,z] = ChunkGenerator.Instance.BlockTypeDictionary["Grass"];
+                    var dirtLayerEnd = y - Random.Range(2,4);
+                    for (int i = y - 1; i >= 0; i--)
+                    {
+                        if (i > dirtLayerEnd)
+                        {
+                            voxelMap[x,i,z] = ChunkGenerator.Instance.BlockTypeDictionary["Dirt"];
+                        }
                         else
-                            voxelMap[x, y, z] = 0;
+                        {
+                            voxelMap[x,i,z] = ChunkGenerator.Instance.BlockTypeDictionary["Stone"];
+                        }
+                        Debug.Log("iter");
                     }
                 }
             }
@@ -99,7 +133,7 @@ namespace Generation
             var y = Mathf.FloorToInt(pos.y);
             var z = Mathf.FloorToInt(pos.z);
 
-            if (x < 0 || x > VoxelData.chunkWidth - 1 || y < 0 || y > VoxelData.chunkHeight - 1|  z < 0 || z > VoxelData.chunkWidth - 1)
+            if (x < 0 || x > VoxelData.chunkWidth - 1 || y < 0 || y > VoxelData.chunkHeight - 1|  z < 0 || z > VoxelData.chunkWidth - 1 || voxelMap[x,y,z] == VoxelData.airID)
                 return false;
             return ChunkGenerator.Instance.BlockTypes[voxelMap[x, y, z]].IsSolid;
         }

@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 namespace Generation
@@ -7,6 +9,8 @@ namespace Generation
     {
         [SerializeField] private Material chunkMaterial;
         [SerializeField] private BlockType[] blockTypes;
+        private Dictionary<string, byte> blockTypeDictionary = new Dictionary<string, byte>();
+        public Dictionary<string, byte> BlockTypeDictionary => blockTypeDictionary;
         public BlockType[] BlockTypes => blockTypes;
         private static ChunkGenerator instance;
 
@@ -20,6 +24,11 @@ namespace Generation
             } else {
                 instance = this;
             }
+
+            for (byte i = 0; i < blockTypes.Length; i++)
+            {
+                blockTypeDictionary.Add(blockTypes[i].BlockName, i);
+            }
         }
     }
 
@@ -27,6 +36,7 @@ namespace Generation
     public class BlockType
     {
         [SerializeField] private string blockName;
+        public string BlockName => blockName;
         [SerializeField] private bool isSolid;
         public bool IsSolid => isSolid;
 

@@ -267,7 +267,7 @@ Transform:
   m_GameObject: {fileID: 370158098}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 0.7, y: 1, z: 0.7}
   m_Children: []
   m_Father: {fileID: 1178973797}
   m_RootOrder: 1
@@ -606,7 +606,7 @@ CharacterController:
   m_Enabled: 1
   serializedVersion: 2
   m_Height: 2
-  m_Radius: 0.5
+  m_Radius: 0.35
   m_SlopeLimit: 45
   m_StepOffset: 0.3
   m_SkinWidth: 0.08
@@ -643,7 +643,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1178973793}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 8, y: 70, z: 8}
+  m_LocalPosition: {x: 8, y: 80, z: 8}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 235242034}
@@ -731,14 +731,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   chunkMaterial: {fileID: 2100000, guid: f9d31a9dbb172844db2e49f8ec5de220, type: 2}
   blockTypes:
-  - blockName: Stone
-    isSolid: 1
-    backFace: 1
-    frontFace: 1
-    topFace: 1
-    bottomFace: 1
-    leftFace: 1
-    rightFace: 1
   - blockName: Grass
     isSolid: 1
     backFace: 3
@@ -755,6 +747,22 @@ MonoBehaviour:
     bottomFace: 0
     leftFace: 0
     rightFace: 0
+  - blockName: Stone
+    isSolid: 1
+    backFace: 1
+    frontFace: 1
+    topFace: 1
+    bottomFace: 1
+    leftFace: 1
+    rightFace: 1
+  - blockName: Air
+    isSolid: 1
+    backFace: 1
+    frontFace: 1
+    topFace: 1
+    bottomFace: 1
+    leftFace: 1
+    rightFace: 1
 --- !u!4 &1931250891
 Transform:
   m_ObjectHideFlags: 0
