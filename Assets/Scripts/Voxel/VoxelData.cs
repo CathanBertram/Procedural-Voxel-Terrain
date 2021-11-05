@@ -4,6 +4,9 @@ namespace Voxel
 {
     public static class VoxelData
     {
+        public static readonly int chunkHeight = 5;
+        public static readonly int chunkWidth = 5;
+        
         public static readonly Vector3[] voxelVertices = new Vector3[8]
         {
             new Vector3(0.0f, 0.0f, 0.0f),
@@ -34,6 +37,16 @@ namespace Voxel
             new Vector2(1.0f, 0.0f),
             new Vector2(0.0f, 1.0f),
             new Vector2(1.0f, 1.0f),
+        };
+
+        public static readonly Vector3[] faceChecks = new Vector3[6]
+        {
+            new Vector3(0.0f,0.0f,-1.0f), //Back Face
+            new Vector3(0.0f,0.0f,1.0f), //Front Face
+            new Vector3(0.0f,1.0f,0.0f), //Top Face
+            new Vector3(0.0f,-1.0f,0.0f), //Bottom Face
+            new Vector3(-1.0f,0.0f,0.0f), //Left Face
+            new Vector3(1.0f,0.0f,0.0f), //Right Face
         };
     }
 }
