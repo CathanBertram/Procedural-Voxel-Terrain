@@ -93,6 +93,7 @@ namespace Generation
             //         }
             //     }
             // }
+            //Set All Voxels To Air
             for (int x = 0; x < VoxelData.chunkWidth; x++)
             {
                 for (int y = 0; y < VoxelData.chunkHeight; y++)
@@ -104,15 +105,15 @@ namespace Generation
                 }
             }
 
-
+            //Generate Data
+            var yPos = VoxelData.seaLevel;
             for (int x = 0; x < VoxelData.chunkWidth; x++)
             {
                 for (int z = 0; z < VoxelData.chunkWidth; z++)
                 {
-                    var y = VoxelData.seaLevel + Random.Range(0, 4);
-                    voxelMap[x,y,z] = ChunkGenerator.Instance.BlockTypeDictionary["Grass"];
-                    var dirtLayerEnd = y - Random.Range(2,4);
-                    for (int i = y - 1; i >= 0; i--)
+                    voxelMap[x,yPos,z] = ChunkGenerator.Instance.BlockTypeDictionary["Grass"];
+                    var dirtLayerEnd = yPos - Random.Range(2,5);
+                    for (int i = yPos - 1; i >= 0; i--)
                     {
                         if (i > dirtLayerEnd)
                         {
@@ -122,7 +123,6 @@ namespace Generation
                         {
                             voxelMap[x,i,z] = ChunkGenerator.Instance.BlockTypeDictionary["Stone"];
                         }
-                        Debug.Log("iter");
                     }
                 }
             }
