@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem.HID;
 using Voxel;
 
 namespace Generation
@@ -16,6 +17,7 @@ namespace Generation
         List<Vector2> uvs = new List<Vector2>();
         Mesh mesh;
 
+        // byte 36000 short 70000 int 137000
         private byte[,,] voxelMap = new byte[VoxelData.chunkWidth, VoxelData.chunkHeight, VoxelData.chunkWidth];
         void Start()
         {
@@ -93,17 +95,6 @@ namespace Generation
             //         }
             //     }
             // }
-            //Set All Voxels To Air
-            for (int x = 0; x < VoxelData.chunkWidth; x++)
-            {
-                for (int y = 0; y < VoxelData.chunkHeight; y++)
-                {
-                    for (int z = 0; z < VoxelData.chunkWidth; z++)
-                    {
-                        voxelMap[x, y, z] = VoxelData.airID;
-                    }
-                }
-            }
 
             //Generate Data
             var yPos = VoxelData.seaLevel;

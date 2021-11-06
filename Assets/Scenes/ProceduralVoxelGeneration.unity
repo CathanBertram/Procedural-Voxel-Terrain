@@ -480,7 +480,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!143 &1178973794
 CharacterController:
   m_ObjectHideFlags: 0
@@ -619,6 +619,14 @@ MonoBehaviour:
   chunkMaterial: {fileID: 2100000, guid: f9d31a9dbb172844db2e49f8ec5de220, type: 2}
   chunkPrefab: {fileID: 5948713939620981018, guid: 071383de1fdfc88479ba2c08ccc226b1, type: 3}
   blockTypes:
+  - blockName: Air
+    isSolid: 1
+    backFace: 1
+    frontFace: 1
+    topFace: 1
+    bottomFace: 1
+    leftFace: 1
+    rightFace: 1
   - blockName: Grass
     isSolid: 1
     backFace: 3
@@ -636,14 +644,6 @@ MonoBehaviour:
     leftFace: 0
     rightFace: 0
   - blockName: Stone
-    isSolid: 1
-    backFace: 1
-    frontFace: 1
-    topFace: 1
-    bottomFace: 1
-    leftFace: 1
-    rightFace: 1
-  - blockName: Air
     isSolid: 1
     backFace: 1
     frontFace: 1

@@ -7,7 +7,7 @@ namespace Voxel
         public static readonly int chunkHeight = 128;
         public static readonly int chunkWidth = 16;
         public static readonly int seaLevel = 64;
-        public static readonly byte airID = 255;
+        public static readonly byte airID = 0;
         
         public static readonly int textureAtlasSizeInBlocks = 2;
 
