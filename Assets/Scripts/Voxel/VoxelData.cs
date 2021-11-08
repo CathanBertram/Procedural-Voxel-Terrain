@@ -4,7 +4,7 @@ namespace Voxel
 {
     public static class VoxelData
     {
-        public static readonly int chunkHeight = 128;
+        public static readonly int chunkHeight = 256;
         public static readonly int chunkWidth = 16;
         public static readonly int seaLevel = 64;
         public static readonly byte airID = 0;
