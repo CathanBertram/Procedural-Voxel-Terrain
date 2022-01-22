@@ -9,9 +9,8 @@ namespace Voxel
         public static readonly int seaLevel = 64;
         public static readonly byte airID = 0;
         
-        public static readonly int textureAtlasSizeInBlocks = 2;
-
-        public static float normailizedBlockTextureSize => 1f / textureAtlasSizeInBlocks;
+        public static int textureAtlasSize = 2;
+        public static float normailizedBlockTextureSize => 1f / textureAtlasSize;
 
         public static readonly Vector3[] voxelVertices = new Vector3[8]
         {

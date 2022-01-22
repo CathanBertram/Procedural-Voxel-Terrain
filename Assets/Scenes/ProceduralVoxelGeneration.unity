@@ -123,6 +123,83 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &37301853
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 37301855}
+  - component: {fileID: 37301854}
+  m_Layer: 0
+  m_Name: BlockDatabase
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &37301854
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 37301853}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 66891e81449889d4cb09699a5cb6b7d6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  blockMaterial: {fileID: 2100000, guid: f9d31a9dbb172844db2e49f8ec5de220, type: 2}
+  blockData:
+  - blockName: Air
+    isSolid: 0
+    backTexture: {fileID: 0}
+    frontTexture: {fileID: 0}
+    topTexture: {fileID: 0}
+    bottomTexture: {fileID: 0}
+    leftTexture: {fileID: 0}
+    rightTexture: {fileID: 0}
+  - blockName: Grass
+    isSolid: 1
+    backTexture: {fileID: 2800000, guid: af5f3c3140496ce4cb1eda5a44b668dc, type: 3}
+    frontTexture: {fileID: 2800000, guid: af5f3c3140496ce4cb1eda5a44b668dc, type: 3}
+    topTexture: {fileID: 2800000, guid: a17c0ca8eb75d09469b55b6b43aca8f2, type: 3}
+    bottomTexture: {fileID: 2800000, guid: 0fda9e0efa34a8d41848913a0e01cb64, type: 3}
+    leftTexture: {fileID: 2800000, guid: af5f3c3140496ce4cb1eda5a44b668dc, type: 3}
+    rightTexture: {fileID: 2800000, guid: af5f3c3140496ce4cb1eda5a44b668dc, type: 3}
+  - blockName: Dirt
+    isSolid: 1
+    backTexture: {fileID: 2800000, guid: 0fda9e0efa34a8d41848913a0e01cb64, type: 3}
+    frontTexture: {fileID: 2800000, guid: 0fda9e0efa34a8d41848913a0e01cb64, type: 3}
+    topTexture: {fileID: 2800000, guid: 0fda9e0efa34a8d41848913a0e01cb64, type: 3}
+    bottomTexture: {fileID: 2800000, guid: 0fda9e0efa34a8d41848913a0e01cb64, type: 3}
+    leftTexture: {fileID: 2800000, guid: 0fda9e0efa34a8d41848913a0e01cb64, type: 3}
+    rightTexture: {fileID: 2800000, guid: 0fda9e0efa34a8d41848913a0e01cb64, type: 3}
+  - blockName: Stone
+    isSolid: 1
+    backTexture: {fileID: 2800000, guid: eac7414a39b6b804d99d11f75e16591e, type: 3}
+    frontTexture: {fileID: 2800000, guid: eac7414a39b6b804d99d11f75e16591e, type: 3}
+    topTexture: {fileID: 2800000, guid: eac7414a39b6b804d99d11f75e16591e, type: 3}
+    bottomTexture: {fileID: 2800000, guid: eac7414a39b6b804d99d11f75e16591e, type: 3}
+    leftTexture: {fileID: 2800000, guid: eac7414a39b6b804d99d11f75e16591e, type: 3}
+    rightTexture: {fileID: 2800000, guid: eac7414a39b6b804d99d11f75e16591e, type: 3}
+--- !u!4 &37301855
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 37301853}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 167.85706, y: 129.10388, z: -14.8440895}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 5
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &235242031
 GameObject:
   m_ObjectHideFlags: 0
@@ -382,7 +459,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 5
+  m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1005957453
 GameObject:
@@ -729,7 +806,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 6
+  m_RootOrder: 7
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1931250889
 GameObject:
@@ -747,7 +824,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &1931250890
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -762,39 +839,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   chunkMaterial: {fileID: 2100000, guid: f9d31a9dbb172844db2e49f8ec5de220, type: 2}
   chunkPrefab: {fileID: 5948713939620981018, guid: 071383de1fdfc88479ba2c08ccc226b1, type: 3}
-  blockTypes:
-  - blockName: Air
-    isSolid: 1
-    backFace: 1
-    frontFace: 1
-    topFace: 1
-    bottomFace: 1
-    leftFace: 1
-    rightFace: 1
-  - blockName: Grass
-    isSolid: 1
-    backFace: 3
-    frontFace: 3
-    topFace: 2
-    bottomFace: 0
-    leftFace: 3
-    rightFace: 3
-  - blockName: Dirt
-    isSolid: 1
-    backFace: 0
-    frontFace: 0
-    topFace: 0
-    bottomFace: 0
-    leftFace: 0
-    rightFace: 0
-  - blockName: Stone
-    isSolid: 1
-    backFace: 1
-    frontFace: 1
-    topFace: 1
-    bottomFace: 1
-    leftFace: 1
-    rightFace: 1
 --- !u!4 &1931250891
 Transform:
   m_ObjectHideFlags: 0

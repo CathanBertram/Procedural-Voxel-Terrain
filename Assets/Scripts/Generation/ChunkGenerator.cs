@@ -1,85 +1,54 @@
-using System;
-using System.Collections.Generic;
-using Unity.VisualScripting;
+using Blocks;
 using UnityEngine;
-using UnityEngine.InputSystem;
 using Voxel;
 
 namespace Generation
 {
-    public class ChunkGenerator : MonoBehaviour
+    public static class ChunkGenerator
     {
-        [SerializeField] private Material chunkMaterial;
-        [SerializeField] private GameObject chunkPrefab;
-        [SerializeField] private BlockType[] blockTypes;
-        private Dictionary<string, byte> blockTypeDictionary = new Dictionary<string, byte>();
-        public Dictionary<string, byte> BlockTypeDictionary => blockTypeDictionary;
-        public BlockType[] BlockTypes => blockTypes;
-        private static ChunkGenerator instance;
-
-        public static ChunkGenerator Instance => instance;
-
-        private void Awake()
+        public static byte[,,] GenerateVoxelMap(int xPos, int zPos)
         {
-            if (instance != null && instance != this)
+            // for (int y = 0; y < VoxelData.chunkHeight; y++)
+            // {
+            //     for (int x = 0; x < VoxelData.chunkWidth; x++)
+            //     {
+            //         for (int z = 0; z < VoxelData.chunkWidth; z++)
+            //         {
+            //             if (y == VoxelData.chunkHeight - 1)
+            //                 voxelMap[x, y, z] = ChunkGenerator.Instance.BlockTypeDictionary["Grass"];
+            //             else if (y >= VoxelData.chunkHeight - 3)
+            //                 voxelMap[x, y, z] = ChunkGenerator.Instance.BlockTypeDictionary["Dirt"];
+            //             else
+            //                 voxelMap[x, y, z] = ChunkGenerator.Instance.BlockTypeDictionary["Stone"];
+            //         }
+            //     }
+            // }
+            
+            byte[,,] voxelMap = new byte[VoxelData.chunkWidth, VoxelData.chunkHeight, VoxelData.chunkWidth];
+            
+            //Generate Data
+            var yPos = VoxelData.seaLevel;
+            for (int x = 0; x < VoxelData.chunkWidth; x++)
             {
-                Destroy(this.gameObject);
-            } else {
-                instance = this;
-            }
-
-            for (byte i = 0; i < blockTypes.Length; i++)
-            {
-                blockTypeDictionary.Add(blockTypes[i].BlockName, i);
-            }
-        }
-
-        private void Start()
-        {
-            for (int x = 0; x < 25; x++)
-            {
-                for (int z = 0; z < 25; z++)
+                for (int z = 0; z < VoxelData.chunkWidth; z++)
                 {
-                    var xPos = x * VoxelData.chunkWidth;
-                    var zPos = z * VoxelData.chunkWidth;
-                    
-                    GameObject.Instantiate(chunkPrefab, new Vector3(xPos, 0, zPos), Quaternion.identity );
+                    voxelMap[x, yPos, z] = BlockDatabase.Instance.GetBlockID("Grass");
+                    var dirtLayerEnd = yPos - Random.Range(2,5);
+                    for (int i = yPos - 1; i >= 0; i--)
+                    {
+                        if (i > dirtLayerEnd)
+                        {
+                            voxelMap[x, i, z] = BlockDatabase.Instance.GetBlockID("Dirt");
+                        }
+                        else
+                        {
+                            voxelMap[x, i, z] = BlockDatabase.Instance.GetBlockID("Stone");
+                        }
+                    }
                 }
             }
-        }
-    }
-    
-    
-    [System.Serializable]
-    public class BlockType
-    {
-        [SerializeField] private string blockName;
-        public string BlockName => blockName;
-        [SerializeField] private bool isSolid;
-        public bool IsSolid => isSolid;
 
-        [Header("Texture Values")] 
-        [SerializeField] private int backFace;
-        [SerializeField] private int frontFace;
-        [SerializeField] private int topFace;
-        [SerializeField] private int bottomFace;
-        [SerializeField] private int leftFace;
-        [SerializeField] private int rightFace;
-        // Back Front Top Bottom Left Right
-        public int GetTextureID(int faceIndex)
-        {
-            switch (faceIndex)
-            {
-                case 0: return backFace;
-                case 1: return frontFace;
-                case 2: return topFace;
-                case 3: return bottomFace;
-                case 4: return leftFace;
-                case 5: return rightFace;
-                default:
-                    throw new NotImplementedException();
-                    return 0;
-            }
+            return voxelMap;
         }
     }
 }

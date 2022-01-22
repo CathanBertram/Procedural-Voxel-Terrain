@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Blocks;
 using UnityEngine;
 using UnityEngine.InputSystem.HID;
 using Voxel;
@@ -29,8 +30,9 @@ namespace Generation
             List<Vector3> vertices = new List<Vector3>();
             List<int> triangles = new List<int>();
             List<Vector2> uvs = new List<Vector2>();
-            
-            PopulateVoxelMap();
+
+            var position = transform.position;
+            voxelMap = ChunkGenerator.GenerateVoxelMap(Mathf.FloorToInt(position.x), Mathf.FloorToInt(position.z));
             CreateMeshData(vertices, triangles, uvs);
             CreateMesh(vertices, triangles, uvs);
         }
@@ -72,8 +74,8 @@ namespace Generation
                     vertices.Add(position + VoxelData.voxelVertices[VoxelData.voxelTriangles[faceIndex, 2]]);
                     vertices.Add(position + VoxelData.voxelVertices[VoxelData.voxelTriangles[faceIndex, 3]]);
                     
-                    AddTexture(ChunkGenerator.Instance.BlockTypes[voxelMap[(int)position.x, (int)position.y, (int)position.z]].GetTextureID(faceIndex), uvs);
-                    
+                    AddTexture(BlockDatabase.Instance.BlockData[voxelMap[(int)position.x, (int)position.y, (int)position.z]].GetTextureID(faceIndex), uvs);
+
                     triangles.Add(vertexIndex);
                     triangles.Add(vertexIndex + 1);
                     triangles.Add(vertexIndex + 2);
@@ -84,47 +86,7 @@ namespace Generation
                 }
             }
         }
-
-        private void PopulateVoxelMap()
-        {
-            // for (int y = 0; y < VoxelData.chunkHeight; y++)
-            // {
-            //     for (int x = 0; x < VoxelData.chunkWidth; x++)
-            //     {
-            //         for (int z = 0; z < VoxelData.chunkWidth; z++)
-            //         {
-            //             if (y == VoxelData.chunkHeight - 1)
-            //                 voxelMap[x, y, z] = ChunkGenerator.Instance.BlockTypeDictionary["Grass"];
-            //             else if (y >= VoxelData.chunkHeight - 3)
-            //                 voxelMap[x, y, z] = ChunkGenerator.Instance.BlockTypeDictionary["Dirt"];
-            //             else
-            //                 voxelMap[x, y, z] = ChunkGenerator.Instance.BlockTypeDictionary["Stone"];
-            //         }
-            //     }
-            // }
-
-            //Generate Data
-            var yPos = VoxelData.seaLevel;
-            for (int x = 0; x < VoxelData.chunkWidth; x++)
-            {
-                for (int z = 0; z < VoxelData.chunkWidth; z++)
-                {
-                    voxelMap[x,yPos,z] = ChunkGenerator.Instance.BlockTypeDictionary["Grass"];
-                    var dirtLayerEnd = yPos - Random.Range(2,5);
-                    for (int i = yPos - 1; i >= 0; i--)
-                    {
-                        if (i > dirtLayerEnd)
-                        {
-                            voxelMap[x,i,z] = ChunkGenerator.Instance.BlockTypeDictionary["Dirt"];
-                        }
-                        else
-                        {
-                            voxelMap[x,i,z] = ChunkGenerator.Instance.BlockTypeDictionary["Stone"];
-                        }
-                    }
-                }
-            }
-        }
+        
         private bool CheckVoxel(Vector3 pos)
         {
             var x = Mathf.FloorToInt(pos.x);
@@ -133,22 +95,29 @@ namespace Generation
 
             if (x < 0 || x > VoxelData.chunkWidth - 1 || y < 0 || y > VoxelData.chunkHeight - 1|  z < 0 || z > VoxelData.chunkWidth - 1 || voxelMap[x,y,z] == VoxelData.airID)
                 return false;
-            return ChunkGenerator.Instance.BlockTypes[voxelMap[x, y, z]].IsSolid;
+            return BlockDatabase.Instance.GetIsSolid(voxelMap[x, y, z]);
         }
 
         private void AddTexture(int textureID, List<Vector2> uvs)
         {
-            float y = textureID / VoxelData.textureAtlasSizeInBlocks;
-            var x = textureID - (y * VoxelData.textureAtlasSizeInBlocks);
+            // float y = textureID / VoxelData.textureAtlasSize;
+            // var x = textureID - (y * VoxelData.textureAtlasSize);
+            float y = 0;
+            float x = textureID;
             
-            var normalizedBlockTextureSize =VoxelData.normailizedBlockTextureSize;
+            var normalizedBlockTextureSize = VoxelData.normailizedBlockTextureSize;
             x *= normalizedBlockTextureSize;
             y *= normalizedBlockTextureSize;
             
+            // uvs.Add(new Vector2(x, y));
+            // uvs.Add(new Vector2(x, y + normalizedBlockTextureSize));
+            // uvs.Add(new Vector2(x + normalizedBlockTextureSize, y));
+            // uvs.Add(new Vector2(x + normalizedBlockTextureSize, y + normalizedBlockTextureSize));
+            
             uvs.Add(new Vector2(x, y));
-            uvs.Add(new Vector2(x, y + normalizedBlockTextureSize));
+            uvs.Add(new Vector2(x, y + 1));
             uvs.Add(new Vector2(x + normalizedBlockTextureSize, y));
-            uvs.Add(new Vector2(x + normalizedBlockTextureSize, y + normalizedBlockTextureSize));
+            uvs.Add(new Vector2(x + normalizedBlockTextureSize, y + 1));
         }
     }
 }
