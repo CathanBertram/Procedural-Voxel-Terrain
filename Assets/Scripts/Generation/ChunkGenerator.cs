@@ -6,7 +6,7 @@ namespace Generation
 {
     public static class ChunkGenerator
     {
-        public static byte[,,] GenerateVoxelMap(int xPos, int zPos)
+        public static byte[,,] GenerateVoxelMap(float xPos, float zPos)
         {
             // for (int y = 0; y < VoxelData.chunkHeight; y++)
             // {
@@ -23,6 +23,7 @@ namespace Generation
             //         }
             //     }
             // }
+            System.Random random = new System.Random();
             
             byte[,,] voxelMap = new byte[VoxelData.chunkWidth, VoxelData.chunkHeight, VoxelData.chunkWidth];
             
@@ -32,13 +33,21 @@ namespace Generation
             {
                 for (int z = 0; z < VoxelData.chunkWidth; z++)
                 {
+                    //yPos = VoxelData.seaLevel + Mathf.RoundToInt(Mathf.Lerp(0, 15, Noise.Instance.PerlinNoise2D(xPos + x, zPos + z)));
+                    yPos = VoxelData.seaLevel + Mathf.RoundToInt(Noise.Instance.PerlinNoise2D(xPos + x, zPos + z) * 4);
+                    
+                    
                     voxelMap[x, yPos, z] = BlockDatabase.Instance.GetBlockID("Grass");
-                    var dirtLayerEnd = yPos - Random.Range(2,5);
+                    var dirtLayerEnd = yPos - random.Next(2, 5);
                     for (int i = yPos - 1; i >= 0; i--)
                     {
                         if (i > dirtLayerEnd)
                         {
                             voxelMap[x, i, z] = BlockDatabase.Instance.GetBlockID("Dirt");
+                        }
+                        else if (i == 0)
+                        {
+                            voxelMap[x, i, z] = BlockDatabase.Instance.GetBlockID("Bedrock");
                         }
                         else
                         {

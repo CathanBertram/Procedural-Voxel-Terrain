@@ -1,7 +1,9 @@
+using System;
 using System.Collections.Generic;
-using Blocks;
+using System.Threading;
+using System.Threading.Tasks;
+using JetBrains.Annotations;
 using UnityEngine;
-using UnityEngine.InputSystem.HID;
 using Voxel;
 
 namespace Generation
@@ -13,111 +15,138 @@ namespace Generation
         [SerializeField] private MeshCollider meshCollider;
     
         int vertexIndex = 0;
-        
-        // List<Vector3> vertices = new List<Vector3>();
-        // List<int> triangles = new List<int>();
-        // List<Vector2> uvs = new List<Vector2>();
-        
-        private Mesh mesh; // Little impact on memory
 
         // byte 32768 short 65336 int 137000
         private byte[,,] voxelMap = new byte[VoxelData.chunkWidth, VoxelData.chunkHeight, VoxelData.chunkWidth];
+
+        private Vector2Int chunkPos;
+        public Vector2Int ChunkPos => chunkPos;
+
+        private Queue<ChunkThreadInfo<byte[,,]>> voxelMapThreadInfoQueue = new Queue<ChunkThreadInfo<byte[,,]>>();
+        private Queue<ChunkThreadInfo<MeshData>> meshDataThreadInfoQueue = new Queue<ChunkThreadInfo<MeshData>>();
+
+        public Action onFinishedGeneration;
+
         void Start()
         {
             transform.gameObject.layer = LayerMask.NameToLayer("Ground");
-            mesh = new Mesh();
-                
-            List<Vector3> vertices = new List<Vector3>();
-            List<int> triangles = new List<int>();
-            List<Vector2> uvs = new List<Vector2>();
-
-            var position = transform.position;
-            voxelMap = ChunkGenerator.GenerateVoxelMap(Mathf.FloorToInt(position.x), Mathf.FloorToInt(position.z));
-            CreateMeshData(vertices, triangles, uvs);
-            CreateMesh(vertices, triangles, uvs);
+            transform.SetParent(WorldLoader.Instance.transform);
         }
-
-    
-        private void CreateMesh(List<Vector3> vertices, List<int> triangles, List<Vector2> uvs)
+#region default
+        public void Generate(int xPos, int yPos)
         {
-            //var mesh = new Mesh();
-            mesh.vertices = vertices.ToArray();
-            mesh.triangles = triangles.ToArray();
-            mesh.uv = uvs.ToArray();
-            mesh.RecalculateNormals();
-
+            Generate(new Vector2Int(xPos, yPos));
+        }
+        public void Generate(Vector2Int _chunkPos)
+        {
+            chunkPos = _chunkPos;
+            
+            voxelMap = ChunkGenerator.GenerateVoxelMap(chunkPos.x * VoxelData.chunkWidth, chunkPos.y * VoxelData.chunkWidth);
+            var mesh = MeshGenerator.GenerateMesh(voxelMap);
+            
             meshFilter.mesh = mesh;
             meshCollider.sharedMesh = mesh;
         }
-        private void CreateMeshData(List<Vector3> vertices, List<int> triangles, List<Vector2> uvs)
-        {
-            for (int y = 0; y < VoxelData.chunkHeight; y++)
-            {
-                for (int x = 0; x < VoxelData.chunkWidth; x++)
-                {
-                    for (int z = 0; z < VoxelData.chunkWidth; z++)
-                    {
-                        if (voxelMap[x,y,z] != VoxelData.airID)
-                            AddVoxelToChunk(new Vector3(x,y,z), vertices, triangles, uvs);
-                    }
-                }
-            }
-        }
-        private void AddVoxelToChunk(Vector3 position, List<Vector3> vertices, List<int> triangles, List<Vector2> uvs)
-        {
-            for (int faceIndex = 0; faceIndex < 6; faceIndex++)
-            {
-                if(!CheckVoxel(position + VoxelData.faceChecks[faceIndex]))
-                {
-                    vertices.Add(position + VoxelData.voxelVertices[VoxelData.voxelTriangles[faceIndex, 0]]);
-                    vertices.Add(position + VoxelData.voxelVertices[VoxelData.voxelTriangles[faceIndex, 1]]);
-                    vertices.Add(position + VoxelData.voxelVertices[VoxelData.voxelTriangles[faceIndex, 2]]);
-                    vertices.Add(position + VoxelData.voxelVertices[VoxelData.voxelTriangles[faceIndex, 3]]);
-                    
-                    AddTexture(BlockDatabase.Instance.BlockData[voxelMap[(int)position.x, (int)position.y, (int)position.z]].GetTextureID(faceIndex), uvs);
+#endregion
 
-                    triangles.Add(vertexIndex);
-                    triangles.Add(vertexIndex + 1);
-                    triangles.Add(vertexIndex + 2);
-                    triangles.Add(vertexIndex + 2);
-                    triangles.Add(vertexIndex + 1);
-                    triangles.Add(vertexIndex + 3);
-                    vertexIndex += 4;
-                }
+#region threaded
+
+        public void GenerateThreaded(int xPos, int yPos)
+        {
+            GenerateThreaded(new Vector2Int(xPos, yPos));
+        }
+        public void GenerateThreaded(Vector2Int _chunkPos)
+        {
+            chunkPos = _chunkPos;
+            RequestVoxelMap(OnVoxelMapReceived);
+        }
+        
+        public void RequestVoxelMap(Action<byte[,,]> callback)
+        {
+            ThreadPool.QueueUserWorkItem(delegate { VoxelMapThread(callback); });
+            
+            //ThreadStart threadStart = delegate { VoxelMapThread(callback); };
+            //new Thread(threadStart).Start();
+        }
+        private void VoxelMapThread(Action<byte[,,]> callback)
+        {
+            voxelMap = ChunkGenerator.GenerateVoxelMap(chunkPos.x * VoxelData.chunkWidth, chunkPos.y * VoxelData.chunkWidth);
+            lock (voxelMapThreadInfoQueue)
+            {
+                voxelMapThreadInfoQueue.Enqueue(new ChunkThreadInfo<byte[,,]>(callback, voxelMap));
             }
         }
         
-        private bool CheckVoxel(Vector3 pos)
+        public void RequestMeshData(Action<MeshData> callback)
         {
-            var x = Mathf.FloorToInt(pos.x);
-            var y = Mathf.FloorToInt(pos.y);
-            var z = Mathf.FloorToInt(pos.z);
-
-            if (x < 0 || x > VoxelData.chunkWidth - 1 || y < 0 || y > VoxelData.chunkHeight - 1|  z < 0 || z > VoxelData.chunkWidth - 1 || voxelMap[x,y,z] == VoxelData.airID)
-                return false;
-            return BlockDatabase.Instance.GetIsSolid(voxelMap[x, y, z]);
+            ThreadPool.QueueUserWorkItem(delegate { MeshDataThread(callback); });
+            
+            // ThreadStart threadStart = delegate { MeshDataThread(callback); };
+            // new Thread(threadStart).Start();
         }
 
-        private void AddTexture(int textureID, List<Vector2> uvs)
+        private void MeshDataThread(Action<MeshData> callback)
         {
-            // float y = textureID / VoxelData.textureAtlasSize;
-            // var x = textureID - (y * VoxelData.textureAtlasSize);
-            float y = 0;
-            float x = textureID;
-            
-            var normalizedBlockTextureSize = VoxelData.normailizedBlockTextureSize;
-            x *= normalizedBlockTextureSize;
-            y *= normalizedBlockTextureSize;
-            
-            // uvs.Add(new Vector2(x, y));
-            // uvs.Add(new Vector2(x, y + normalizedBlockTextureSize));
-            // uvs.Add(new Vector2(x + normalizedBlockTextureSize, y));
-            // uvs.Add(new Vector2(x + normalizedBlockTextureSize, y + normalizedBlockTextureSize));
-            
-            uvs.Add(new Vector2(x, y));
-            uvs.Add(new Vector2(x, y + 1));
-            uvs.Add(new Vector2(x + normalizedBlockTextureSize, y));
-            uvs.Add(new Vector2(x + normalizedBlockTextureSize, y + 1));
+            MeshData meshData = MeshGenerator.GenerateMeshData(voxelMap);
+            lock (meshDataThreadInfoQueue)
+            {
+                meshDataThreadInfoQueue.Enqueue(new ChunkThreadInfo<MeshData>(callback, meshData));
+            }
         }
+        private void Update()
+        {
+            if (voxelMapThreadInfoQueue.Count > 0)
+            {
+                for (int i = 0; i < voxelMapThreadInfoQueue.Count; i++)
+                {
+                    ChunkThreadInfo<byte[,,]> chunkInfo = voxelMapThreadInfoQueue.Dequeue();
+                    chunkInfo.callback(chunkInfo.parameter);
+                }
+            }
+
+            if (meshDataThreadInfoQueue.Count > 0)
+            {
+                for (int i = 0; i < meshDataThreadInfoQueue.Count; i++)
+                {
+                    ChunkThreadInfo<MeshData> chunkInfo = meshDataThreadInfoQueue.Dequeue();
+                    chunkInfo.callback(chunkInfo.parameter);
+                }
+            }
+        }
+
+        private void OnVoxelMapReceived(byte[,,] _voxelMap)
+        {
+            voxelMap = _voxelMap;
+            
+            RequestMeshData(OnMeshDataReceived);
+        }
+
+        private void OnMeshDataReceived(MeshData meshData)
+        {
+            Mesh mesh = new Mesh();
+            mesh.vertices = meshData.vertices;
+            mesh.triangles = meshData.triangles;
+            mesh.uv = meshData.uvs;
+            
+            mesh.RecalculateNormals();
+
+            meshFilter.mesh = mesh;
+            meshFilter.sharedMesh = mesh;
+
+            onFinishedGeneration();
+        }
+        #endregion
+        struct ChunkThreadInfo<T>
+        {
+            public readonly Action<T> callback;
+            public readonly T parameter;
+
+            public ChunkThreadInfo(Action<T> _callback, T _parameter)
+            {
+                callback = _callback;
+                parameter = _parameter;
+            }
+        }
+        
     }
 }

@@ -1,3 +1,6 @@
+using Unity.Collections;
+using Unity.Collections.LowLevel.Unsafe;
+using Unity.Jobs;
 using UnityEngine;
 
 namespace Voxel
@@ -55,3 +58,6 @@ namespace Voxel
         };
     }
 }
+
+
+
