@@ -65,6 +65,14 @@ public class @GameplayInputActions : IInputActionCollection, IDisposable
                     ""expectedControlType"": ""Button"",
                     ""processors"": """",
                     ""interactions"": """"
+                },
+                {
+                    ""name"": ""Crouch"",
+                    ""type"": ""Button"",
+                    ""id"": ""56d287b8-d1ca-4851-b374-d6270ec93974"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """"
                 }
             ],
             ""bindings"": [
@@ -210,6 +218,17 @@ public class @GameplayInputActions : IInputActionCollection, IDisposable
                     ""action"": ""CycleBlock"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""57bc965b-82db-4d65-a225-14b4e264501c"",
+                    ""path"": ""<Keyboard>/leftCtrl"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Crouch"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -224,6 +243,7 @@ public class @GameplayInputActions : IInputActionCollection, IDisposable
         m_Player_Attack = m_Player.FindAction("Attack", throwIfNotFound: true);
         m_Player_Interact = m_Player.FindAction("Interact", throwIfNotFound: true);
         m_Player_CycleBlock = m_Player.FindAction("CycleBlock", throwIfNotFound: true);
+        m_Player_Crouch = m_Player.FindAction("Crouch", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -279,6 +299,7 @@ public class @GameplayInputActions : IInputActionCollection, IDisposable
     private readonly InputAction m_Player_Attack;
     private readonly InputAction m_Player_Interact;
     private readonly InputAction m_Player_CycleBlock;
+    private readonly InputAction m_Player_Crouch;
     public struct PlayerActions
     {
         private @GameplayInputActions m_Wrapper;
@@ -289,6 +310,7 @@ public class @GameplayInputActions : IInputActionCollection, IDisposable
         public InputAction @Attack => m_Wrapper.m_Player_Attack;
         public InputAction @Interact => m_Wrapper.m_Player_Interact;
         public InputAction @CycleBlock => m_Wrapper.m_Player_CycleBlock;
+        public InputAction @Crouch => m_Wrapper.m_Player_Crouch;
         public InputActionMap Get() { return m_Wrapper.m_Player; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -316,6 +338,9 @@ public class @GameplayInputActions : IInputActionCollection, IDisposable
                 @CycleBlock.started -= m_Wrapper.m_PlayerActionsCallbackInterface.OnCycleBlock;
                 @CycleBlock.performed -= m_Wrapper.m_PlayerActionsCallbackInterface.OnCycleBlock;
                 @CycleBlock.canceled -= m_Wrapper.m_PlayerActionsCallbackInterface.OnCycleBlock;
+                @Crouch.started -= m_Wrapper.m_PlayerActionsCallbackInterface.OnCrouch;
+                @Crouch.performed -= m_Wrapper.m_PlayerActionsCallbackInterface.OnCrouch;
+                @Crouch.canceled -= m_Wrapper.m_PlayerActionsCallbackInterface.OnCrouch;
             }
             m_Wrapper.m_PlayerActionsCallbackInterface = instance;
             if (instance != null)
@@ -338,6 +363,9 @@ public class @GameplayInputActions : IInputActionCollection, IDisposable
                 @CycleBlock.started += instance.OnCycleBlock;
                 @CycleBlock.performed += instance.OnCycleBlock;
                 @CycleBlock.canceled += instance.OnCycleBlock;
+                @Crouch.started += instance.OnCrouch;
+                @Crouch.performed += instance.OnCrouch;
+                @Crouch.canceled += instance.OnCrouch;
             }
         }
     }
@@ -350,5 +378,6 @@ public class @GameplayInputActions : IInputActionCollection, IDisposable
         void OnAttack(InputAction.CallbackContext context);
         void OnInteract(InputAction.CallbackContext context);
         void OnCycleBlock(InputAction.CallbackContext context);
+        void OnCrouch(InputAction.CallbackContext context);
     }
 }

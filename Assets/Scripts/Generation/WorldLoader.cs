@@ -90,7 +90,7 @@ namespace Generation
             UnloadChunks();
             LoadChunks();
         }
-
+        
         public bool TryGetChunkAtPos(int x, int z, out Chunk chunk)
         {
             chunk = null;
@@ -139,6 +139,7 @@ namespace Generation
         
         private void LoadChunks()
         {
+            List<Vector2Int> chunksToLoad = new List<Vector2Int>();
             for (int x = -loadRange; x < loadRange; x++)
             {
                 for (int y = -loadRange; y < loadRange; y++)
@@ -148,9 +149,17 @@ namespace Generation
                     if (loadingChunkInfos.ContainsKey(pos)) continue;
 
                     if (!InsideCircle(pos)) continue;
-
-                    GenerateChunk(pos);
+                    
+                    chunksToLoad.Add(pos);
+                    //GenerateChunk(pos);
                 }   
+            }
+
+            chunksToLoad = chunksToLoad.OrderBy(x => Vector2Int.Distance(previousPlayerPos, x)).ToList();
+
+            foreach (var item in chunksToLoad)
+            {
+                GenerateChunk(item);
             }
         }
         
