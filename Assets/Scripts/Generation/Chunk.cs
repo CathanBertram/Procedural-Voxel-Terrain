@@ -40,7 +40,7 @@ namespace Generation
             var z = Mathf.FloorToInt(pos.z) - chunkPos.y * chunkWidth;
 
             voxelMap[x, y, z] = newBlock;
-            RequestMeshData(OnMeshDataReceived);
+            RequestMeshRebuild(OnRebuiltMeshDataReceived);
         }
 
         public void PlaceBlock(Vector3 pos, byte newBlock)
@@ -50,9 +50,37 @@ namespace Generation
             var z = Mathf.FloorToInt(pos.z) - chunkPos.y * chunkWidth;
 
             voxelMap[x, y, z] = newBlock;
-            RequestMeshData(OnMeshDataReceived);
+            RequestMeshRebuild(OnRebuiltMeshDataReceived);
         }
 
+        private void RequestMeshRebuild(Action<MeshData> callback)
+        {
+            ThreadPool.QueueUserWorkItem(delegate { MeshRebuildThread(callback); });
+        }
+
+        private void MeshRebuildThread(Action<MeshData> callback)
+        {
+            MeshData meshData = MeshGenerator.GenerateMeshData(voxelMap);
+            lock (meshDataThreadInfoQueue)
+            {
+                meshDataThreadInfoQueue.Enqueue(new ChunkThreadInfo<MeshData>(callback, meshData));
+            }
+        }
+        
+        private void OnRebuiltMeshDataReceived(MeshData meshData)
+        {
+            Mesh mesh = new Mesh();
+            mesh.vertices = meshData.vertices;
+            mesh.triangles = meshData.triangles;
+            mesh.uv = meshData.uvs;
+            
+            mesh.RecalculateNormals();
+
+            meshFilter.mesh = mesh;
+            meshFilter.sharedMesh = mesh;
+            meshCollider.sharedMesh = mesh;
+        }
+        
         #region default
         public void Generate(int xPos, int yPos)
         {
@@ -70,6 +98,7 @@ namespace Generation
         }
 #endregion
 
+       
 #region threaded
 
         public void GenerateThreaded(int xPos, int yPos)
