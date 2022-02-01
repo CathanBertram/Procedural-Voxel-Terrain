@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -22,6 +24,7 @@ namespace Generation
         [SerializeField] private GameObject chunkPrefab;
 
         private Dictionary<Vector2Int, Chunk> loadedChunks = new Dictionary<Vector2Int, Chunk>();
+        private Dictionary<Vector2Int, ChunkInfo> loadingChunkInfos = new Dictionary<Vector2Int, ChunkInfo>();
 
         [SerializeField] private int loadRange = 5;
         
@@ -48,6 +51,7 @@ namespace Generation
         private void Start()
         {
             loadedChunks = new Dictionary<Vector2Int, Chunk>();
+            loadingChunkInfos = new Dictionary<Vector2Int, ChunkInfo>();
             
             var position = player.transform.position;
             previousPlayerPos = new Vector2Int(Mathf.RoundToInt(position.x / VoxelData.chunkWidth), Mathf.RoundToInt(position.z / VoxelData.chunkWidth));
@@ -87,6 +91,19 @@ namespace Generation
             LoadChunks();
         }
 
+        public bool TryGetChunkAtPos(int x, int z, out Chunk chunk)
+        {
+            chunk = null;
+            var pos = new Vector2Int(x, z);
+            if (loadedChunks.ContainsKey(pos))
+            {
+                chunk = loadedChunks[pos];
+                return true;
+            }
+
+            return false;
+        }
+        
         private void UnloadChunks()
         {
             List<Vector2Int> toRemove = new List<Vector2Int>();
@@ -98,10 +115,25 @@ namespace Generation
                     toRemove.Add(item.Key);
                 }
             }
-
+            
             foreach (var item in toRemove)
             {
                 loadedChunks.Remove(item);
+            }
+            
+            toRemove.Clear();
+            foreach (var item in loadingChunkInfos)
+            {
+                if (Vector2Int.Distance(item.Key, previousPlayerPos) > loadRange)
+                {
+                    toRemove.Add(item.Key);
+                }
+            }
+
+            foreach (var item in toRemove)
+            {
+                chunkLoadQueue = new Queue<ChunkInfo>(chunkLoadQueue.Where(x => x.chunkPos != item));
+                loadingChunkInfos.Remove(item);
             }
         }
         
@@ -113,6 +145,8 @@ namespace Generation
                 {
                     var pos = new Vector2Int(x + previousPlayerPos.x, y + previousPlayerPos.y);
                     if (loadedChunks.ContainsKey(pos)) continue;
+                    if (loadingChunkInfos.ContainsKey(pos)) continue;
+
                     if (!InsideCircle(pos)) continue;
 
                     GenerateChunk(pos);
@@ -151,20 +185,27 @@ namespace Generation
                     break;
                 case LoadMode.Threaded:
                     var chunkInfo = new ChunkInfo(chunkPos, worldPos, GenerateChunkThreaded);
-                    if(!chunkLoadQueue.Contains(chunkInfo))
+                    if (!chunkLoadQueue.Contains(chunkInfo))
+                    {
                         chunkLoadQueue.Enqueue(chunkInfo);
+                        loadingChunkInfos.Add(chunkInfo.chunkPos, chunkInfo);
+                    }
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
             }
         }
 
-        private void GenerateChunkThreaded(Vector2Int chunkPos, Vector2Int worldPos)
+        private void GenerateChunkThreaded(ChunkInfo info)
         {
+            var chunkPos = info.chunkPos;
+            var worldPos = info.worldPos;
+            
             loadingChunks++;
             var chunk = GameObject.Instantiate(chunkPrefab, new Vector3(worldPos.x, 0, worldPos.y), Quaternion.identity).GetComponent<Chunk>();
             chunk.onFinishedGeneration = OnFinishGeneration;
             chunk.GenerateThreaded(chunkPos);
+            
             loadedChunks.Add(chunkPos, chunk);
         }
 
@@ -175,12 +216,13 @@ namespace Generation
                 if (loadingChunks < maxLoadingChunks)
                 {
                     var info = chunkLoadQueue.Dequeue();
-                    info.callback(info.chunkPos, info.worldPos);
+                    info.callback(info);
                 }
             }
         }
-        private void OnFinishGeneration()
+        private void OnFinishGeneration(Vector2Int chunkPos, Chunk chunk)
         {
+            loadingChunkInfos.Remove(chunkPos);
             loadingChunks--;
         }
         private bool InsideCircle(Vector2Int pos)
@@ -190,14 +232,14 @@ namespace Generation
             float dSquared = dx * dx + dy * dy;
             return dSquared <= loadRange * loadRange;
         }
-
+        
         struct ChunkInfo
         {
             public readonly Vector2Int chunkPos;
             public readonly Vector2Int worldPos;
-            public readonly Action<Vector2Int, Vector2Int> callback;
+            public readonly Action<ChunkInfo> callback;
 
-            public ChunkInfo(Vector2Int _chunkPos, Vector2Int _worldPos, Action<Vector2Int, Vector2Int> _callback)
+            public ChunkInfo(Vector2Int _chunkPos, Vector2Int _worldPos, Action<ChunkInfo> _callback)
             {
                 chunkPos = _chunkPos;
                 worldPos = _worldPos;

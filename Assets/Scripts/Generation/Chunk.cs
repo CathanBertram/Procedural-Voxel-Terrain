@@ -4,11 +4,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using UnityEngine;
-using Voxel;
+using static Voxel.VoxelData;
 
 namespace Generation
 {
-    public class Chunk : MonoBehaviour
+    public class Chunk : MonoBehaviour, IChunkDestructability
     {
         [SerializeField] private MeshRenderer meshRenderer;
         [SerializeField] private MeshFilter meshFilter;
@@ -17,7 +17,7 @@ namespace Generation
         int vertexIndex = 0;
 
         // byte 32768 short 65336 int 137000
-        private byte[,,] voxelMap = new byte[VoxelData.chunkWidth, VoxelData.chunkHeight, VoxelData.chunkWidth];
+        private byte[,,] voxelMap = new byte[chunkWidth, chunkHeight, chunkWidth];
 
         private Vector2Int chunkPos;
         public Vector2Int ChunkPos => chunkPos;
@@ -25,14 +25,35 @@ namespace Generation
         private Queue<ChunkThreadInfo<byte[,,]>> voxelMapThreadInfoQueue = new Queue<ChunkThreadInfo<byte[,,]>>();
         private Queue<ChunkThreadInfo<MeshData>> meshDataThreadInfoQueue = new Queue<ChunkThreadInfo<MeshData>>();
 
-        public Action onFinishedGeneration;
+        public Action<Vector2Int, Chunk> onFinishedGeneration;
 
         void Start()
         {
             transform.gameObject.layer = LayerMask.NameToLayer("Ground");
             transform.SetParent(WorldLoader.Instance.transform);
         }
-#region default
+        
+        public void BreakBlock(Vector3 pos, byte newBlock = 0)
+        {
+            var x = Mathf.FloorToInt(pos.x) - chunkPos.x * chunkWidth;
+            var y = Mathf.FloorToInt(pos.y);
+            var z = Mathf.FloorToInt(pos.z) - chunkPos.y * chunkWidth;
+
+            voxelMap[x, y, z] = newBlock;
+            RequestMeshData(OnMeshDataReceived);
+        }
+
+        public void PlaceBlock(Vector3 pos, byte newBlock)
+        {
+            var x = Mathf.FloorToInt(pos.x) - chunkPos.x * chunkWidth;
+            var y = Mathf.FloorToInt(pos.y);
+            var z = Mathf.FloorToInt(pos.z) - chunkPos.y * chunkWidth;
+
+            voxelMap[x, y, z] = newBlock;
+            RequestMeshData(OnMeshDataReceived);
+        }
+
+        #region default
         public void Generate(int xPos, int yPos)
         {
             Generate(new Vector2Int(xPos, yPos));
@@ -41,7 +62,7 @@ namespace Generation
         {
             chunkPos = _chunkPos;
             
-            voxelMap = ChunkGenerator.GenerateVoxelMap(chunkPos.x * VoxelData.chunkWidth, chunkPos.y * VoxelData.chunkWidth);
+            voxelMap = ChunkGenerator.GenerateVoxelMap(chunkPos.x * chunkWidth, chunkPos.y * chunkWidth);
             var mesh = MeshGenerator.GenerateMesh(voxelMap);
             
             meshFilter.mesh = mesh;
@@ -70,7 +91,7 @@ namespace Generation
         }
         private void VoxelMapThread(Action<byte[,,]> callback)
         {
-            voxelMap = ChunkGenerator.GenerateVoxelMap(chunkPos.x * VoxelData.chunkWidth, chunkPos.y * VoxelData.chunkWidth);
+            voxelMap = ChunkGenerator.GenerateVoxelMap(chunkPos.x * chunkWidth, chunkPos.y * chunkWidth);
             lock (voxelMapThreadInfoQueue)
             {
                 voxelMapThreadInfoQueue.Enqueue(new ChunkThreadInfo<byte[,,]>(callback, voxelMap));
@@ -132,8 +153,9 @@ namespace Generation
 
             meshFilter.mesh = mesh;
             meshFilter.sharedMesh = mesh;
-
-            onFinishedGeneration();
+            meshCollider.sharedMesh = mesh;
+            
+            onFinishedGeneration(chunkPos, this);
         }
         #endregion
         struct ChunkThreadInfo<T>

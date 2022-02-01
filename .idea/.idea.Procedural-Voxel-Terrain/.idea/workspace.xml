@@ -7,6 +7,11 @@
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
+  <component name="HighlightingSettingsPerFile">
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/f7f0a900fdf94a2a9316bb3d4c5aa3e8144200/ac/da3ae14a/Debug.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/4d9f144854e44b48b32b352f99ec343518600/8b/f82849bd/Physics.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Library/PackageCache/com.unity.inputsystem@1.0.2/InputSystem/Actions/InputActionState.cs" root0="SKIP_HIGHLIGHTING" />
+  </component>
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
   </component>
@@ -61,7 +66,9 @@
       <workItem from="1643406385346" duration="4630000" />
       <workItem from="1643468951177" duration="1364000" />
       <workItem from="1643497136926" duration="8656000" />
-      <workItem from="1643542739396" duration="13985000" />
+      <workItem from="1643542739396" duration="14417000" />
+      <workItem from="1643568740057" duration="261000" />
+      <workItem from="1643711276428" duration="7013000" />
     </task>
     <servers />
   </component>

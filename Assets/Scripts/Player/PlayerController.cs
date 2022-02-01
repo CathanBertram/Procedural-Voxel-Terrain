@@ -1,7 +1,11 @@
 using System;
+using System.Linq;
+using Blocks;
+using Generation;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using Voxel;
 
 namespace Player
 {
@@ -10,6 +14,9 @@ namespace Player
         private GameplayInputActions gameplayInputActions;
         private InputAction movement;
         private InputAction look;
+        private byte selectedBlock = 1;
+
+        [SerializeField] private float attackRange = 3f;
         
         [Header("Movement")]
         [SerializeField] private CharacterController characterController;
@@ -48,14 +55,39 @@ namespace Player
             
             gameplayInputActions.Player.Interact.performed += Interact;
             gameplayInputActions.Player.Interact.Enable();
+            
+            gameplayInputActions.Player.CycleBlock.performed += CycleBlock;
+            gameplayInputActions.Player.CycleBlock.Enable();
         }
 
+        private void CycleBlock(InputAction.CallbackContext ctx)
+        {
+            var cycleDir = ctx.ReadValue<float>();
+            if (cycleDir < 0)
+            {
+                selectedBlock--;
+                if (selectedBlock <= 0)
+                {
+                    selectedBlock = (byte)(BlockDatabase.Instance.BlockData.Count() - 1);
+                }
+            }
+            if (cycleDir > 0)
+            {
+                selectedBlock++;
+                if (selectedBlock >= BlockDatabase.Instance.BlockData.Count())
+                {
+                    selectedBlock = 1;
+                }
+            }
+        }
         private void OnDisable()
         {
             movement.Disable();
             gameplayInputActions.Player.Jump.Disable();
             gameplayInputActions.Player.Attack.Disable();
             gameplayInputActions.Player.Interact.Disable();
+            gameplayInputActions.Player.CycleBlock.Disable();
+            
         }
 
         private void Update()
@@ -95,8 +127,8 @@ namespace Player
         private void Look()
         {
             var mouseMovement = look.ReadValue<Vector2>();
-            var mouseX = mouseMovement.x * mouseSensitivity * Time.deltaTime;
-            var mouseY = mouseMovement.y * mouseSensitivity * Time.deltaTime;
+            var mouseX = mouseMovement.x * mouseSensitivity * 0.01f;
+            var mouseY = mouseMovement.y * mouseSensitivity * 0.01f;
             
             transform.Rotate(Vector3.up * mouseX);
 
@@ -114,11 +146,31 @@ namespace Player
 
         private void Attack(InputAction.CallbackContext ctx)
         {
-            Debug.Log("attack");
+            if (Physics.Raycast(playerCam.position, playerCam.forward, out var hit, attackRange, groundLayerMask))
+            {
+                if (hit.transform.gameObject.TryGetComponent<IChunkDestructability>(out var destructability))
+                {
+                    destructability.BreakBlock(hit.point - hit.normal * 0.5f);
+                }
+            }
         }
         private void Interact(InputAction.CallbackContext ctx)
         {
-            Debug.Log("interact");
+            if (Physics.Raycast(playerCam.position, playerCam.forward, out var hit, attackRange, groundLayerMask))
+            {
+                var pos = hit.point + hit.normal * 0.5f;
+                
+                var x = Mathf.FloorToInt(pos.x / VoxelData.chunkWidth);
+                var z = Mathf.FloorToInt(pos.z / VoxelData.chunkWidth);
+                
+                if(WorldLoader.Instance.TryGetChunkAtPos(x,z, out var chunk))
+                    chunk.PlaceBlock(pos, selectedBlock);
+                
+                // if (hit.transform.gameObject.TryGetComponent<IChunkDestructability>(out var destructability))
+                // {
+                //     destructability.PlaceBlock(hit.point + hit.normal * 0.5f, 4);
+                // }
+            }
         }
     }
 }
