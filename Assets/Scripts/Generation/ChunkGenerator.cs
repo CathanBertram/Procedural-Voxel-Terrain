@@ -34,8 +34,8 @@ namespace Generation
                 for (int z = 0; z < VoxelData.chunkWidth; z++)
                 {
                     //yPos = VoxelData.seaLevel + Mathf.RoundToInt(Mathf.Lerp(0, 15, Noise.Instance.PerlinNoise2D(xPos + x, zPos + z)));
-                    yPos = VoxelData.seaLevel + Mathf.RoundToInt(Noise.Instance.PerlinNoise2D(xPos + x, zPos + z) * 4);
-                    
+                    //yPos = VoxelData.seaLevel + Mathf.RoundToInt(Noise.Instance.PerlinNoise2D(xPos + x, zPos + z) * 4);
+                    yPos = VoxelData.seaLevel + Mathf.RoundToInt(Easing.EaseInOutQuadratic(0, 30, 0.5f * (1 + Noise.Instance.PerlinNoise2D(xPos + x, zPos + z))));
                     
                     voxelMap[x, yPos, z] = BlockDatabase.Instance.GetBlockID("Grass");
                     var dirtLayerEnd = yPos - random.Next(2, 5);

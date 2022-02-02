@@ -4,7 +4,7 @@ using UnityEngine;
 public class texturetest : MonoBehaviour
 {
     [SerializeField] private List<Texture2D> sprites;
-    [SerializeField] private Renderer renderer;
+    [SerializeField] private Renderer r;
     private Texture2D texture;
     [SerializeField] private int seed;
     [SerializeField] private int octaves;
@@ -15,7 +15,7 @@ public class texturetest : MonoBehaviour
     {
         texture = new Texture2D(128, 128);
 
-        renderer.material.mainTexture = texture;
+        r.material.mainTexture = texture;
         
         for (int x = 0; x < 128; x++)
         {
@@ -48,7 +48,7 @@ public class texturetest : MonoBehaviour
         texture.SetPixels (colourMap);
         texture.Apply ();
 
-        renderer.sharedMaterial.mainTexture = texture;
-        renderer.transform.localScale = new Vector3 (width, 1, height);
+        r.sharedMaterial.mainTexture = texture;
+        r.transform.localScale = new Vector3 (width, 1, height);
     }
 }
