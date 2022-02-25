@@ -23,7 +23,7 @@ namespace Generation
             //         }
             //     }
             // }
-            System.Random random = new System.Random();
+            System.Random random = new System.Random(Noise.seed);
             
             byte[,,] voxelMap = new byte[VoxelData.chunkWidth, VoxelData.chunkHeight, VoxelData.chunkWidth];
             
@@ -35,7 +35,7 @@ namespace Generation
                 {
                     //yPos = VoxelData.seaLevel + Mathf.RoundToInt(Mathf.Lerp(0, 15, Noise.Instance.PerlinNoise2D(xPos + x, zPos + z)));
                     //yPos = VoxelData.seaLevel + Mathf.RoundToInt(Noise.Instance.PerlinNoise2D(xPos + x, zPos + z) * 4);
-                    yPos = VoxelData.seaLevel + Mathf.RoundToInt(Easing.EaseInOutQuint(0, 30, 0.5f * (1 + Noise.Instance.PerlinNoise2D(xPos + x, zPos + z))));
+                    yPos = VoxelData.seaLevel + Mathf.RoundToInt(Easing.EaseInOutQuint(0, 30, 0.5f * (1 + Noise.UnityPerlinNoise2D(xPos + x, zPos + z))));
                     
                     voxelMap[x, yPos, z] = BlockDatabase.Instance.GetBlockID("Grass");
                     var dirtLayerEnd = yPos - random.Next(2, 5);

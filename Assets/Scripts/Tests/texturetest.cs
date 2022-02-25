@@ -21,16 +21,11 @@ public class texturetest : MonoBehaviour
         {
             for (int y = 0; y < 128; y++)
             {
-                Noise.Instance.PerlinNoise2D(x, y);
+                Noise.PerlinNoise2D(x, y);
                 texture.SetPixel(x, y, new Color());
             }
         }
         texture.Apply();
-    }
-
-    private void Update()
-    {
-        DrawNoiseMap(Noise.Instance.GeneratePerlinNoiseMap(256,256));
     }
     
     public void DrawNoiseMap(float[,] noiseMap) {
@@ -50,5 +45,10 @@ public class texturetest : MonoBehaviour
 
         r.sharedMaterial.mainTexture = texture;
         r.transform.localScale = new Vector3 (width, 1, height);
+    }
+
+    public void Generate()
+    {
+        DrawNoiseMap(Noise.GeneratePerlinNoiseMap(256,256, octaves, scale, persistence, lacunarity));
     }
 }

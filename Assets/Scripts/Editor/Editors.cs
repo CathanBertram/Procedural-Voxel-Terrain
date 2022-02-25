@@ -19,4 +19,20 @@ namespace Editor
             }
         }
     }
+    
+    [CustomEditor(typeof(texturetest))]
+    public class TextureTestEditor : UnityEditor.Editor
+    {
+        public override void OnInspectorGUI()
+        {
+            DrawDefaultInspector();
+
+            texturetest myTarget = (texturetest) target;
+
+            if (GUILayout.Button("Update"))
+            {
+                myTarget.Generate();
+            }
+        }
+    }
 }

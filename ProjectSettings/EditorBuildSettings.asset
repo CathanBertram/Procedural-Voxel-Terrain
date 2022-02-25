@@ -6,6 +6,6 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Scenes/SampleScene.unity
-    guid: d1c3109bdb54ad54c8a2b2838528e640
+    path: Assets/Scenes/ProceduralVoxelGeneration.unity
+    guid: b3c171cb0b9b8424e8aad1291ba5fe8e
   m_configObjects: {}
