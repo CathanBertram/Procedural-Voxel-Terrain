@@ -1,11 +1,13 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class texturetest : MonoBehaviour
 {
-    [SerializeField] private List<Texture2D> sprites;
     [SerializeField] private Renderer r;
     private Texture2D texture;
+    [SerializeField] private int textureSize;
+
     [SerializeField] private int seed;
     [SerializeField] private int octaves;
     [SerializeField] private float scale;
@@ -14,14 +16,14 @@ public class texturetest : MonoBehaviour
     private void Start()
     {
         texture = new Texture2D(128, 128);
-
+        
         r.material.mainTexture = texture;
         
         for (int x = 0; x < 128; x++)
         {
             for (int y = 0; y < 128; y++)
             {
-                Noise.PerlinNoise2D(x, y);
+                Noise.UnityPerlinNoise2D(x, y);
                 texture.SetPixel(x, y, new Color());
             }
         }
@@ -44,11 +46,11 @@ public class texturetest : MonoBehaviour
         texture.Apply ();
 
         r.sharedMaterial.mainTexture = texture;
-        r.transform.localScale = new Vector3 (width, 1, height);
+        r.transform.localScale = new Vector3 (10, 1, 10);
     }
 
     public void Generate()
     {
-        DrawNoiseMap(Noise.GeneratePerlinNoiseMap(256,256, octaves, scale, persistence, lacunarity));
+        DrawNoiseMap(Noise.GeneratePerlinNoiseMap(textureSize,textureSize, octaves, scale, persistence, lacunarity));
     }
 }

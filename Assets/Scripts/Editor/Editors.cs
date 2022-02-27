@@ -35,4 +35,19 @@ namespace Editor
             }
         }
     }
+    [CustomEditor(typeof(TextureSave))]
+    public class TextureSaveEditor : UnityEditor.Editor
+    {
+        public override void OnInspectorGUI()
+        {
+            DrawDefaultInspector();
+
+            TextureSave myTarget = (TextureSave) target;
+
+            if (GUILayout.Button("SaveTexture"))
+            {
+                myTarget.SaveTexture();
+            }
+        }
+    }
 }
