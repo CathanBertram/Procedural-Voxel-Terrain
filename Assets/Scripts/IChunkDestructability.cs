@@ -4,7 +4,5 @@ using UnityEngine;
 
 public interface IChunkDestructability
 {
-    public void PlaceBlock(Vector3 pos, byte newBlock);
-    public void BreakBlock(Vector3 pos, byte newBlock = 0);
-
+    public void ReplaceBlock(Vector3 pos, byte newBlock = 0);
 }

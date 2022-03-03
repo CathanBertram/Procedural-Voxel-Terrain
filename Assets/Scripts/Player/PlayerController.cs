@@ -150,7 +150,7 @@ namespace Player
             {
                 if (hit.transform.gameObject.TryGetComponent<IChunkDestructability>(out var destructability))
                 {
-                    destructability.BreakBlock(hit.point - hit.normal * 0.5f);
+                    destructability.ReplaceBlock(hit.point - hit.normal * 0.5f);
                 }
             }
         }
@@ -164,7 +164,7 @@ namespace Player
                 var z = Mathf.FloorToInt(pos.z / VoxelData.chunkWidth);
                 
                 if(WorldLoader.Instance.TryGetChunkAtPos(x,z, out var chunk))
-                    chunk.PlaceBlock(pos, selectedBlock);
+                    chunk.ReplaceBlock(pos, selectedBlock);
                 
                 // if (hit.transform.gameObject.TryGetComponent<IChunkDestructability>(out var destructability))
                 // {

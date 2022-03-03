@@ -32,18 +32,8 @@ namespace Generation
             transform.gameObject.layer = LayerMask.NameToLayer("Ground");
             transform.SetParent(WorldLoader.Instance.transform);
         }
-        
-        public void BreakBlock(Vector3 pos, byte newBlock = 0)
-        {
-            var x = Mathf.FloorToInt(pos.x) - chunkPos.x * chunkWidth;
-            var y = Mathf.FloorToInt(pos.y);
-            var z = Mathf.FloorToInt(pos.z) - chunkPos.y * chunkWidth;
 
-            voxelMap[x, y, z] = newBlock;
-            RequestMeshRebuild(OnRebuiltMeshDataReceived);
-        }
-
-        public void PlaceBlock(Vector3 pos, byte newBlock)
+        public void ReplaceBlock(Vector3 pos, byte newBlock = 0)
         {
             var x = Mathf.FloorToInt(pos.x) - chunkPos.x * chunkWidth;
             var y = Mathf.FloorToInt(pos.y);
@@ -143,27 +133,6 @@ namespace Generation
                 meshDataThreadInfoQueue.Enqueue(new ChunkThreadInfo<MeshData>(callback, meshData));
             }
         }
-        private void Update()
-        {
-            if (voxelMapThreadInfoQueue.Count > 0)
-            {
-                for (int i = 0; i < voxelMapThreadInfoQueue.Count; i++)
-                {
-                    ChunkThreadInfo<byte[,,]> chunkInfo = voxelMapThreadInfoQueue.Dequeue();
-                    chunkInfo.callback(chunkInfo.parameter);
-                }
-            }
-
-            if (meshDataThreadInfoQueue.Count > 0)
-            {
-                for (int i = 0; i < meshDataThreadInfoQueue.Count; i++)
-                {
-                    ChunkThreadInfo<MeshData> chunkInfo = meshDataThreadInfoQueue.Dequeue();
-                    chunkInfo.callback(chunkInfo.parameter);
-                }
-            }
-        }
-
         private void OnVoxelMapReceived(byte[,,] _voxelMap)
         {
             voxelMap = _voxelMap;
@@ -186,6 +155,28 @@ namespace Generation
             
             onFinishedGeneration(chunkPos, this);
         }
+        private void Update()
+        {
+            if (voxelMapThreadInfoQueue.Count > 0)
+            {
+                for (int i = 0; i < voxelMapThreadInfoQueue.Count; i++)
+                {
+                    ChunkThreadInfo<byte[,,]> chunkInfo = voxelMapThreadInfoQueue.Dequeue();
+                    chunkInfo.callback(chunkInfo.parameter);
+                }
+            }
+
+            if (meshDataThreadInfoQueue.Count > 0)
+            {
+                for (int i = 0; i < meshDataThreadInfoQueue.Count; i++)
+                {
+                    ChunkThreadInfo<MeshData> chunkInfo = meshDataThreadInfoQueue.Dequeue();
+                    chunkInfo.callback(chunkInfo.parameter);
+                }
+            }
+        }
+
+        
         #endregion
         struct ChunkThreadInfo<T>
         {
