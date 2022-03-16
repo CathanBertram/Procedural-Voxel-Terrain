@@ -1,44 +1,19 @@
 using System;
-<<<<<<< Updated upstream
 using System.Linq;
-=======
-using System.Diagnostics;
->>>>>>> Stashed changes
 using UnityEngine;
 using Random = UnityEngine.Random;
 
 public static class Noise
 {
-<<<<<<< Updated upstream
     public static PerlinNoiseSettings perlinNoiseSettings = new PerlinNoiseSettings(1, 80f, 0.5f, 1f);
     public static int seed;
     
-    public static float UnityPerlinNoise2D(float x, float y)
-=======
-    private static Noise instance;
-    public static Noise Instance => instance;
-    public int seed;
-
-    public PerlinNoiseSettings perlinNoiseSettings;
-    //private System.Random prng;
-    private void Awake()
-    {
-        if (instance != null && instance != this)
-        {
-            Destroy(this.gameObject);
-        } else {
-            instance = this;
-        }
-
-        //prng = new System.Random(seed);
-    }
-
-    private void OnValidate()
->>>>>>> Stashed changes
+    public static float UnityPerlinNoise2D(float x, float y, System.Random prng)
     {
         Vector2[] octaveOffsets = new Vector2[perlinNoiseSettings.octaves];
 
-        System.Random prng = new System.Random(seed);
+        //System.Random prng = new System.Random(seed);
+        prng = new System.Random(seed);
 
         for (int i = 0; i < perlinNoiseSettings.octaves; i++) {
             float offsetX = prng.Next (-100000, 100000);
@@ -185,7 +160,6 @@ public static class Noise
 
         return noiseMap;
     }
-
 }
 
 [System.Serializable]

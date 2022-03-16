@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -18,12 +19,14 @@ public class texturetest : MonoBehaviour
         texture = new Texture2D(128, 128);
         
         r.material.mainTexture = texture;
+
+        System.Random rand = new System.Random(seed);
         
         for (int x = 0; x < 128; x++)
         {
             for (int y = 0; y < 128; y++)
             {
-                Noise.UnityPerlinNoise2D(x, y);
+                Noise.UnityPerlinNoise2D(x, y, rand);
                 texture.SetPixel(x, y, new Color());
             }
         }
