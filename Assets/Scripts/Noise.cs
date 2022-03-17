@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using Unity.Mathematics;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -155,6 +156,23 @@ public static class Noise
         for (int y = 0; y < mapHeight; y++) {
             for (int x = 0; x < mapWidth; x++) {
                 noiseMap [x, y] = Mathf.InverseLerp (minNoiseHeight, maxNoiseHeight, noiseMap [x, y]);
+            }
+        }
+
+        return noiseMap;
+    }
+
+    public static float[,] FNGeneratePerlinNoiseMap(int w, int h, int x, int y)
+    {
+        float[,] noiseMap = new float[w, h];
+        
+        FastNoise fn = new FastNoise();
+        fn.SetNoiseType(FastNoise.NoiseType.Perlin);
+        for (int _x = 0; _x < w; _x++)
+        {
+            for (int _y = 0; _y < h; _y++)
+            {
+                noiseMap[_x, _y] = fn.GetNoise(_x + x, _y + y);
             }
         }
 

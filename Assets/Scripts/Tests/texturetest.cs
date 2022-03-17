@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.Remoting.Channels;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -8,31 +9,8 @@ public class texturetest : MonoBehaviour
     [SerializeField] private Renderer r;
     private Texture2D texture;
     [SerializeField] private int textureSize;
-
-    [SerializeField] private int seed;
-    [SerializeField] private int octaves;
-    [SerializeField] private float scale;
-    [SerializeField] private float persistence;
-    [SerializeField] private float lacunarity;
-    private void Start()
-    {
-        texture = new Texture2D(128, 128);
-        
-        r.material.mainTexture = texture;
-
-        System.Random rand = new System.Random(seed);
-        
-        for (int x = 0; x < 128; x++)
-        {
-            for (int y = 0; y < 128; y++)
-            {
-                Noise.UnityPerlinNoise2D(x, y, rand);
-                texture.SetPixel(x, y, new Color());
-            }
-        }
-        texture.Apply();
-    }
-    
+    public int width;
+    public int height;
     public void DrawNoiseMap(float[,] noiseMap) {
         int width = noiseMap.GetLength (0);
         int height = noiseMap.GetLength (1);
@@ -52,8 +30,50 @@ public class texturetest : MonoBehaviour
         r.transform.localScale = new Vector3 (10, 1, 10);
     }
 
+    public FastNoise.NoiseType noiseType;
+    public int seed = 1337;
+    public float frequency = 0.01f;
+    public FastNoise.Interp interp = FastNoise.Interp.Quintic;
+    public float cellularJitter = 0.45f;
+    public float gain = 0.5f;
+    public float lacunarity = 2.0f;
+    public int octaves = 3;
+    public FastNoise.FractalType fractalType = FastNoise.FractalType.FBM;
+    public int cellularDistanceIndex0 = 0;
+    public int cellularDistanceIndex1 = 1;
+    public FastNoise.CellularDistanceFunction cellularDistanceFunction = FastNoise.CellularDistanceFunction.Euclidean;
+    public float gradientPerturbAmp = 1.0f;
+    public FastNoise.CellularReturnType cellularReturnType = FastNoise.CellularReturnType.CellValue;
     public void Generate()
     {
-        DrawNoiseMap(Noise.GeneratePerlinNoiseMap(textureSize,textureSize, octaves, scale, persistence, lacunarity));
+        FastNoise fn = new FastNoise();
+
+        fn.SetNoiseType(noiseType);
+        fn.SetSeed(seed);
+        fn.SetFrequency(frequency);
+        fn.SetInterp(interp);
+        fn.SetCellularJitter(cellularJitter);
+        fn.SetFractalGain(gain);
+        fn.SetFractalLacunarity(lacunarity);
+        fn.SetFractalOctaves(octaves);
+        fn.SetFractalType(fractalType);
+        fn.SetCellularDistance2Indicies(cellularDistanceIndex0, cellularDistanceIndex1);
+        fn.SetCellularDistanceFunction(cellularDistanceFunction);
+        fn.SetGradientPerturbAmp(gradientPerturbAmp);
+        fn.SetCellularReturnType(cellularReturnType);
+        
+        float[,] noiseMap = new float[width, height];
+
+        for (int x = 0; x < width; x++)
+        {
+            for (int y = 0; y < height; y++)
+            {
+                noiseMap[x, y] = fn.GetNoise(x, y);
+            }
+        }
+
+        DrawNoiseMap(noiseMap);
     }
+    
+    
 }
