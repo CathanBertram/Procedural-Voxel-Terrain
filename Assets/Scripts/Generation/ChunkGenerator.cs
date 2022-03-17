@@ -7,6 +7,9 @@ namespace Generation
 {
     public static class ChunkGenerator
     {
+        public static EasingType easingType;
+        public static int lowerBound;
+        public static int upperBound;
         public static byte[,,] GenerateVoxelMap(float xPos, float zPos)
         {
             // for (int y = 0; y < VoxelData.chunkHeight; y++)
@@ -24,10 +27,10 @@ namespace Generation
             //         }
             //     }
             // }
-            System.Random random = new System.Random(Noise.seed);
+            System.Random random = new System.Random(Noise.Seed);
             
             byte[,,] voxelMap = new byte[VoxelData.chunkWidth, VoxelData.chunkHeight, VoxelData.chunkWidth];
-            float[,] noiseMap = Noise.FNGeneratePerlinNoiseMap(VoxelData.chunkWidth, VoxelData.chunkHeight, Mathf.FloorToInt(xPos), Mathf.FloorToInt(zPos));
+            float[,] noiseMap = Noise.FNGenerateNoiseMap(VoxelData.chunkWidth, VoxelData.chunkHeight, Mathf.FloorToInt(xPos), Mathf.FloorToInt(zPos));
             //Generate Data
             var yPos = VoxelData.seaLevel;
             for (int x = 0; x < VoxelData.chunkWidth; x++)
@@ -37,7 +40,7 @@ namespace Generation
                     //yPos = VoxelData.seaLevel + Mathf.RoundToInt(Mathf.Lerp(0, 15, Noise.Instance.PerlinNoise2D(xPos + x, zPos + z)));
                     //yPos = VoxelData.seaLevel + Mathf.RoundToInt(Noise.Instance.PerlinNoise2D(xPos + x, zPos + z) * 4);
                     //yPos = VoxelData.seaLevel + Mathf.RoundToInt(Easing.EaseInOutQuint(0, 30, 0.5f * (1 + Noise.UnityPerlinNoise2D(xPos + x, zPos + z, random))));
-                    yPos = VoxelData.seaLevel + Mathf.RoundToInt(Easing.EaseInOutQuint(0, 30, noiseMap[x,z]));
+                    yPos = VoxelData.seaLevel + Mathf.RoundToInt(Easing.Ease(easingType,lowerBound, upperBound, 0.5f * (1 + noiseMap[x,z])));
                     
                     voxelMap[x, yPos, z] = BlockDatabase.Instance.GetBlockID("Grass");
                     var dirtLayerEnd = yPos - random.Next(2, 5);

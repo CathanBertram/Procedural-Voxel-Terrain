@@ -1,3 +1,5 @@
+using System;
+using System.Runtime.InteropServices;
 using UnityEngine;
 
 public enum EasingType
@@ -34,6 +36,71 @@ public enum EasingType
 
 public static class Easing
 {
+    public static float Ease(EasingType type, float a, float b, float t)
+    {
+        switch (type)
+        {
+            case EasingType.Linear:
+                return Linear(a, b, t);
+            case EasingType.EaseInQuadratic:
+                return EaseInQuadratic(a, b, t);
+            case EasingType.EaseOutQuadratic:
+                return EaseOutQuadratic(a, b, t);
+            case EasingType.EaseInOutQuadratic:
+                return EaseInOutQuadratic(a, b, t);
+            case EasingType.EaseInCubic:
+                return EaseInCubic(a, b, t);
+            case EasingType.EaseOutCubic:
+                return EaseOutCubic(a, b, t);
+            case EasingType.EaseInOutCubic:
+                return EaseInOutCubic(a, b, t);
+            case EasingType.EaseInQuart:
+                return EaseInQuart(a, b, t);
+            case EasingType.EaseOutQuart:
+                return EaseOutQuart(a, b, t);
+            case EasingType.EaseInOutQuart:
+                return EaseInOutQuart(a, b, t);
+            case EasingType.EaseInQuint:
+                return EaseInQuint(a, b, t);
+            case EasingType.EaseOutQuint:
+                return EaseOutQuint(a, b, t);
+            case EasingType.EaseInOutQuint:
+                return EaseInOutQuint(a, b, t);
+            case EasingType.EaseInSine:
+                return EaseInSine(a, b, t);
+            case EasingType.EaseOutSine:
+                return EaseOutSine(a, b, t);
+            case EasingType.EaseInOutSine:
+                return EaseInOutSine(a, b, t);
+            case EasingType.EaseInExpo:
+                return EaseInExpo(a, b, t);
+            case EasingType.EaseOutExpo:
+                return EaseOutExpo(a, b, t);
+            case EasingType.EaseInOutExpo:
+                return EaseInOutExpo(a, b, t);
+            case EasingType.EaseInCirc:
+                return EaseInCirc(a, b, t);
+            case EasingType.EaseOutCirc:
+                return EaseOutCirc(a, b, t);
+            case EasingType.EaseInOutCirc:
+                return EaseInOutCirc(a, b, t);
+            case EasingType.EaseInBack:
+                return EaseInBack(a, b, t);
+            case EasingType.EaseOutBack:
+                return EaseOutBack(a, b, t);
+            case EasingType.EaseInOutBack:
+                return EaseInOutBack(a, b, t);
+            case EasingType.EaseInBounce:
+                return EaseInBounce(a, b, t);
+            case EasingType.EaseOutBounce:
+                return EaseOutBounce(a, b, t);
+            case EasingType.EaseInOutBounce:
+                return EaseInOutBounce(a, b, t);
+            default:
+                return 0;
+        }
+    }
+    
     public static float Linear(float a, float b, float t)
     {
         return a + (b - a) * t;
