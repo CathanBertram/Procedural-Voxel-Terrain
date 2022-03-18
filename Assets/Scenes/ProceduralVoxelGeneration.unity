@@ -428,7 +428,6 @@ GameObject:
   m_Component:
   - component: {fileID: 627798553}
   - component: {fileID: 627798552}
-  - component: {fileID: 627798551}
   m_Layer: 0
   m_Name: NoiseSettings
   m_TagString: Untagged
@@ -436,38 +435,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &627798551
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 627798550}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4769e140e33119d42aff1561d9dd7ca1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  noiseName: Default Noise
-  seed: 1327
-  frequency: 0.01
-  interp: 2
-  noiseType: 5
-  octaves: 3
-  lacunarity: 1.66
-  gain: 0.17
-  fractalType: 0
-  cellularDistanceFunction: 0
-  cellularReturnType: 0
-  cellularNoiseLookup: {fileID: 0}
-  cellularDistanceIndex0: 0
-  cellularDistanceIndex1: 1
-  cellularJitter: 0.45
-  gradientPerturbAmp: 1
-  generalSettingsFold: 1
-  fractalSettingsFold: 1
-  cellularSettingsFold: 0
-  positionWarpSettingsFold: 0
 --- !u!114 &627798552
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -483,20 +450,20 @@ MonoBehaviour:
   easingType: 0
   lowerBound: 0
   upperBound: 20
-  fastNoiseUnity: {fileID: 627798551}
+  noiseCaveThreshold: 0.2
   updateVFX: 1
-  noiseType: 5
-  seed: 1327
+  noiseType: 3
+  seed: 1208
   frequency: 0.01
   interp: 2
-  cellularJitter: 0.45
+  cellularJitter: 0.359
   gain: 0.17
   lacunarity: 1.66
   octaves: 3
   fractalType: 0
   cellularDistanceIndex0: 0
   cellularDistanceIndex1: 1
-  cellularDistanceFunction: 0
+  cellularDistanceFunction: 2
   gradientPerturbAmp: 1
   cellularReturnType: 0
 --- !u!4 &627798553

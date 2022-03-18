@@ -1,8 +1,4 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using Generation;
-using Unity.Mathematics;
 using UnityEngine;
 
 public class NoiseSettings : MonoBehaviour
@@ -10,7 +6,7 @@ public class NoiseSettings : MonoBehaviour
     public EasingType easingType;
     public int lowerBound;
     public int upperBound;
-    public FastNoiseUnity fastNoiseUnity;
+    public float noiseCaveThreshold;
     public bool updateVFX;
     public FastNoise.NoiseType noiseType;
     public int seed = 1337;
@@ -36,25 +32,32 @@ public class NoiseSettings : MonoBehaviour
         ChunkGenerator.easingType = easingType;
         ChunkGenerator.lowerBound = lowerBound;
         ChunkGenerator.upperBound = upperBound;
+        ChunkGenerator.noiseCaveThreshold = noiseCaveThreshold;
     }
-
-    private void OnValidate()
+    
+    public FastNoise CreateFastNoise()
     {
-        if (!updateVFX) return;
+        FastNoise fn = new FastNoise();
 
-        fastNoiseUnity.noiseType = noiseType;
-        fastNoiseUnity.seed = seed;
-        fastNoiseUnity.frequency = frequency;
-        fastNoiseUnity.interp = interp;
-        fastNoiseUnity.cellularJitter = cellularJitter;
-        fastNoiseUnity.gain = gain;
-        fastNoiseUnity.lacunarity = lacunarity;
-        fastNoiseUnity.octaves = octaves;
-        fastNoiseUnity.fractalType = fractalType;
-        fastNoiseUnity.cellularDistanceIndex0 = cellularDistanceIndex0;
-        fastNoiseUnity.cellularDistanceIndex1 = cellularDistanceIndex1;
-        fastNoiseUnity.cellularDistanceFunction = cellularDistanceFunction;
-        fastNoiseUnity.cellularReturnType = cellularReturnType;
-        fastNoiseUnity.gradientPerturbAmp = gradientPerturbAmp;
+        fn.SetNoiseType(noiseType);
+        fn.SetSeed(seed);
+        fn.SetFrequency(frequency);
+        fn.SetInterp(interp);
+        
+        //Fractal Settings
+        fn.SetFractalGain(gain);
+        fn.SetFractalLacunarity(lacunarity);
+        fn.SetFractalOctaves(octaves);
+        fn.SetFractalType(fractalType);
+        
+        //Cellular Settings
+        fn.SetCellularDistance2Indicies(cellularDistanceIndex0, cellularDistanceIndex1);
+        fn.SetCellularDistanceFunction(cellularDistanceFunction);
+        fn.SetCellularJitter(cellularJitter);
+        fn.SetCellularReturnType(cellularReturnType);
+        
+        fn.SetGradientPerturbAmp(gradientPerturbAmp);
+
+        return fn;
     }
 }

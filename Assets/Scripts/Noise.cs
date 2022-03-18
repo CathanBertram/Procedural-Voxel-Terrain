@@ -223,6 +223,45 @@ public static class Noise
 
         return noiseMap;
     }
+    
+    public static float[,,] FNGenerateNoiseMap(int w, int h, int d, int x, int y, int z)
+    {
+        float[,,] noiseMap = new float[w, h, d];
+        
+        FastNoise fn = new FastNoise();
+
+        fn.SetNoiseType(noiseType);
+        fn.SetSeed(seed);
+        fn.SetFrequency(frequency);
+        fn.SetInterp(interp);
+        
+        //Fractal Settings
+        fn.SetFractalGain(gain);
+        fn.SetFractalLacunarity(lacunarity);
+        fn.SetFractalOctaves(octaves);
+        fn.SetFractalType(fractalType);
+        
+        //Cellular Settings
+        fn.SetCellularDistance2Indicies(cellularDistanceIndex0, cellularDistanceIndex1);
+        fn.SetCellularDistanceFunction(cellularDistanceFunction);
+        fn.SetCellularJitter(cellularJitter);
+        fn.SetCellularReturnType(cellularReturnType);
+        
+        fn.SetGradientPerturbAmp(gradientPerturbAmp);
+
+        for (int _x = 0; _x < w; _x++)
+        {
+            for (int _y = 0; _y < h; _y++)
+            {
+                for (int _z = 0; _z < d; _z++)
+                {
+                    noiseMap[_x, _y, _z] = fn.GetNoise(_x + x, _y + y, _z + z);
+                }
+            }
+        }
+        
+        return noiseMap;
+    }
 }
 
 [System.Serializable]
