@@ -447,13 +447,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a75ca5cdbb979cc469a2d3f99451834b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  easingType: 0
+  easingType: 3
   lowerBound: 0
   upperBound: 20
   noiseCaveThreshold: 0.2
   updateVFX: 1
-  noiseType: 3
-  seed: 1208
+  noiseType: 5
+  seed: 1442
   frequency: 0.01
   interp: 2
   cellularJitter: 0.359

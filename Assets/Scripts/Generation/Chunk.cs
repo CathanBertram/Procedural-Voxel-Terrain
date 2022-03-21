@@ -85,6 +85,8 @@ namespace Generation
             
             meshFilter.mesh = mesh;
             meshCollider.sharedMesh = mesh;
+            mesh.Optimize();
+            mesh.RecalculateNormals();
         }
 #endregion
 
@@ -146,12 +148,12 @@ namespace Generation
             mesh.vertices = meshData.vertices;
             mesh.triangles = meshData.triangles;
             mesh.uv = meshData.uvs;
-            
-            mesh.RecalculateNormals();
 
             meshFilter.mesh = mesh;
-            meshFilter.sharedMesh = mesh;
             meshCollider.sharedMesh = mesh;
+            
+            mesh.Optimize();
+            mesh.RecalculateNormals();
             
             onFinishedGeneration(chunkPos, this);
         }

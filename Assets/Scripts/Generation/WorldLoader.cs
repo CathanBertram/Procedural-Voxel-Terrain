@@ -4,10 +4,15 @@ using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using Unity.VisualScripting;
+using UnityEditor;
+using UnityEditor.VersionControl;
 using UnityEngine;
+using UnityEngine.AI;
 using UnityEngine.InputSystem;
+using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
 using Voxel;
+
 
 namespace Generation
 {
@@ -242,6 +247,28 @@ namespace Generation
             return dSquared <= loadRange * loadRange;
         }
         
+        public void SaveWorldMesh()
+        {
+            MeshFilter[] meshFilters = GetComponentsInChildren<MeshFilter>();
+            CombineInstance[] combine = new CombineInstance[meshFilters.Length];
+
+            for (int i = 0; i < meshFilters.Length; i++)
+            {
+                combine[i].mesh = meshFilters[i].sharedMesh;
+                combine[i].transform = meshFilters[i].transform.localToWorldMatrix;
+            }
+
+            Mesh mesh = new Mesh();
+            mesh.indexFormat = IndexFormat.UInt32;
+            mesh.CombineMeshes(combine);
+            mesh.Optimize();
+            mesh.RecalculateNormals();
+            mesh.OptimizeIndexBuffers();
+            mesh.OptimizeReorderVertexBuffer();
+            AssetDatabase.CreateAsset(mesh, $"Assets/GeneratedMeshes/Mesh{UnityEngine.Random.Range(0,10000)}.asset");
+            AssetDatabase.SaveAssets();
+        }
+        
         struct ChunkInfo
         {
             public readonly Vector2Int chunkPos;
@@ -253,6 +280,22 @@ namespace Generation
                 chunkPos = _chunkPos;
                 worldPos = _worldPos;
                 callback = _callback;
+            }
+        }
+    }
+
+    [CustomEditor(typeof(WorldLoader))]
+    public class WorldLoaderEditor : Editor
+    {
+        public override void OnInspectorGUI()
+        {
+            DrawDefaultInspector();
+
+            WorldLoader myTarget = (WorldLoader) target;
+
+            if (GUILayout.Button("Save World Mesh"))
+            {
+                myTarget.SaveWorldMesh();
             }
         }
     }

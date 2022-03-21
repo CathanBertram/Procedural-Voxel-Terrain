@@ -40,9 +40,9 @@ public static class MeshGenerator
     private static void GenerateMeshValues(byte[,,] voxelMap, List<Vector3> vertices, List<int> triangles, List<Vector2> uvs)
     {
         PassableInt vertexIndex = new PassableInt(0);
-        for (int y = 0; y < VoxelData.chunkHeight; y++)
+        for (int x = 0; x < VoxelData.chunkWidth; x++)
         {
-            for (int x = 0; x < VoxelData.chunkWidth; x++)
+            for (int y = 0; y < VoxelData.chunkHeight; y++)
             {
                 for (int z = 0; z < VoxelData.chunkWidth; z++)
                 {
@@ -83,7 +83,7 @@ public static class MeshGenerator
         var y = Mathf.FloorToInt(pos.y);
         var z = Mathf.FloorToInt(pos.z);
 
-        if (x < 0 || x > VoxelData.chunkWidth - 1 || y < 0 || y > VoxelData.chunkHeight - 1|  z < 0 || z > VoxelData.chunkWidth - 1 || voxelMap[x,y,z] == VoxelData.airID)
+        if (x < 0 || x > VoxelData.chunkWidth - 1 || y < 0 || y > VoxelData.chunkHeight - 1 || z < 0 || z > VoxelData.chunkWidth - 1 || voxelMap[x,y,z] == VoxelData.airID)
             return false;
         return BlockDatabase.Instance.GetIsSolid(voxelMap[x, y, z]);
     }
