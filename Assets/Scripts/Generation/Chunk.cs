@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using UnityEngine;
+using Voxel;
 using static Voxel.VoxelData;
 
 namespace Generation
@@ -13,7 +14,7 @@ namespace Generation
         [SerializeField] private MeshRenderer meshRenderer;
         [SerializeField] private MeshFilter meshFilter;
         [SerializeField] private MeshCollider meshCollider;
-    
+
         int vertexIndex = 0;
 
         // byte 32768 short 65336 int 137000
@@ -43,6 +44,11 @@ namespace Generation
             RequestMeshRebuild(OnRebuiltMeshDataReceived);
         }
 
+        public void RebuildMesh()
+        {            
+            RequestMeshRebuild(OnRebuiltMeshDataReceived);
+        }
+        
         private void RequestMeshRebuild(Action<MeshData> callback)
         {
             ThreadPool.QueueUserWorkItem(delegate { MeshRebuildThread(callback); });
@@ -50,28 +56,37 @@ namespace Generation
 
         private void MeshRebuildThread(Action<MeshData> callback)
         {
-            MeshData meshData = MeshGenerator.GenerateMeshData(voxelMap);
+            MeshData meshData = MeshGenerator.GenerateMeshData(voxelMap, chunkPos);
             lock (meshDataThreadInfoQueue)
             {
                 meshDataThreadInfoQueue.Enqueue(new ChunkThreadInfo<MeshData>(callback, meshData));
             }
         }
-        
+
         private void OnRebuiltMeshDataReceived(MeshData meshData)
         {
             Mesh mesh = new Mesh();
             mesh.vertices = meshData.vertices;
             mesh.triangles = meshData.triangles;
             mesh.uv = meshData.uvs;
-            
+
             mesh.RecalculateNormals();
 
             meshFilter.mesh = mesh;
             meshFilter.sharedMesh = mesh;
             meshCollider.sharedMesh = mesh;
         }
-        
-        #region default
+
+        public byte GetBlockAtIndex(Vector3Int pos)
+        {
+            if (pos.x < 0 || pos.x >= VoxelData.chunkWidth || pos.y < 0 || pos.y >= VoxelData.chunkHeight ||
+                pos.z < 0 || pos.z >= VoxelData.chunkWidth)
+                return VoxelData.airID;
+            
+            return voxelMap[pos.x, pos.y, pos.z];
+        }
+
+#region default
         public void Generate(int xPos, int yPos)
         {
             Generate(new Vector2Int(xPos, yPos));
@@ -81,7 +96,7 @@ namespace Generation
             chunkPos = _chunkPos;
             
             voxelMap = ChunkGenerator.GenerateVoxelMap(chunkPos.x * chunkWidth, chunkPos.y * chunkWidth);
-            var mesh = MeshGenerator.GenerateMesh(voxelMap);
+            var mesh = MeshGenerator.GenerateMesh(voxelMap, chunkPos);
             
             meshFilter.mesh = mesh;
             meshCollider.sharedMesh = mesh;
@@ -129,7 +144,7 @@ namespace Generation
 
         private void MeshDataThread(Action<MeshData> callback)
         {
-            MeshData meshData = MeshGenerator.GenerateMeshData(voxelMap);
+            MeshData meshData = MeshGenerator.GenerateMeshData(voxelMap, chunkPos);
             lock (meshDataThreadInfoQueue)
             {
                 meshDataThreadInfoQueue.Enqueue(new ChunkThreadInfo<MeshData>(callback, meshData));

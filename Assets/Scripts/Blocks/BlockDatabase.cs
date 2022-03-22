@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using Voxel;
 
 namespace Blocks
 {
@@ -41,6 +42,9 @@ namespace Blocks
 
         public bool GetIsSolid(byte blockID)
         {
+            if (blockID == VoxelData.airID)
+                return false;
+            
             return blockData[blockID].IsSolid;
         }
     }

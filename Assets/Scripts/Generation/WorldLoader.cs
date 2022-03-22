@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
+using Blocks;
 using Unity.VisualScripting;
 using UnityEditor;
 using UnityEditor.VersionControl;
@@ -75,7 +76,29 @@ namespace Generation
             //     }
             // }
         }
+        public byte GetBlockAtIndex(Vector2Int chunkPos, Vector3Int blockPos)
+        {
+            if (!TryGetChunkAtPos(chunkPos.x, chunkPos.y, out var chunk))
+                return 1;
 
+            return chunk.GetBlockAtIndex(blockPos);
+        }
+        public byte GetBlockAtIndex(int x, int z, Vector3Int blockPos)
+        {
+            if (!TryGetChunkAtPos(x, z, out var chunk))
+                return 1;
+            
+            return chunk.GetBlockAtIndex(blockPos);
+        }
+
+        public bool CheckSolidAtIndex(Vector2Int chunkPos, Vector3Int blockPos)
+        {
+            return BlockDatabase.Instance.GetIsSolid(GetBlockAtIndex(chunkPos, blockPos));
+        }
+        public bool CheckSolidAtIndex(int x, int z, Vector3Int blockPos)
+        {
+            return BlockDatabase.Instance.GetIsSolid(GetBlockAtIndex(x, z, blockPos));
+        }
         private void Update()
         {
             for (int i = 0; i < maxChunksToStartPerFrame; i++)
@@ -141,6 +164,7 @@ namespace Generation
                 loadingChunkInfos.Remove(item);
             }
         }
+
         
         private void LoadChunks()
         {
@@ -196,6 +220,8 @@ namespace Generation
                     var chunk = GameObject.Instantiate(chunkPrefab, new Vector3(worldPos.x, 0, worldPos.y), Quaternion.identity).GetComponent<Chunk>();
                     chunk.Generate(chunkPos);
                     loadedChunks.Add(chunkPos, chunk);
+                    RebuildAdjacentChunkMeshes(chunkPos);
+
                     break;
                 case LoadMode.Threaded:
                     var chunkInfo = new ChunkInfo(chunkPos, worldPos, GenerateChunkThreaded);
@@ -238,6 +264,23 @@ namespace Generation
         {
             loadingChunkInfos.Remove(chunkPos);
             loadingChunks--;
+
+            RebuildAdjacentChunkMeshes(chunkPos);
+            
+        }
+
+        public void RebuildAdjacentChunkMeshes(Vector2Int chunkPos)
+        {
+            Chunk c;
+            
+            if (TryGetChunkAtPos(chunkPos.x - 1, chunkPos.y, out c))
+                c.RebuildMesh();
+            if (TryGetChunkAtPos(chunkPos.x + 1, chunkPos.y, out c))
+                c.RebuildMesh();
+            if (TryGetChunkAtPos(chunkPos.x, chunkPos.y - 1, out c))
+                c.RebuildMesh();
+            if (TryGetChunkAtPos(chunkPos.x, chunkPos.y + 1, out c))
+                c.RebuildMesh();
         }
         private bool InsideCircle(Vector2Int pos)
         {
