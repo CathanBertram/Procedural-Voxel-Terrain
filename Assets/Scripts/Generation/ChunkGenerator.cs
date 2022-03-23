@@ -1,5 +1,7 @@
+using System.Collections.Generic;
 using Blocks;
 using Unity.Mathematics;
+using Unity.VisualScripting;
 using UnityEngine;
 using Voxel;
 
@@ -11,7 +13,7 @@ namespace Generation
         public static int lowerBound;
         public static int upperBound;
         public static float noiseCaveThreshold;
-        public static byte[,,] GenerateVoxelMap(float xPos, float zPos)
+        public static byte[,,] GenerateVoxelMap(int xPos, int zPos)
         {
             //Seed Random for all random operations
             System.Random random = new System.Random(Noise.Seed);
@@ -81,6 +83,52 @@ namespace Generation
             }
 #endregion
 
+            Dictionary<Vector2Int, AdditionalChunkData> additionalChunkData =
+                new Dictionary<Vector2Int, AdditionalChunkData>();
+            Vector3Int testCenter = new Vector3Int(12, 100, 13);
+            for (int x = 0; x < 8; x++)
+            {
+                for (int y = 0; y < 8; y++)
+                {
+                    for (int z = 0; z < 8; z++)
+                    {
+                        var tempPos = testCenter;
+                        tempPos.x += x;
+                        tempPos.z += z;
+                        if (tempPos.x < 0 || tempPos.x > VoxelData.chunkWidth - 1 || tempPos.y < 0 || tempPos.y > VoxelData.chunkHeight - 1 
+                            || tempPos.z < 0 || tempPos.z > VoxelData.chunkWidth - 1)
+                        {
+                            var chunkX = Mathf.FloorToInt((float)(testCenter.x + x) / (float)VoxelData.chunkWidth);
+                            var chunkZ = Mathf.FloorToInt((float)(testCenter.z + z) / (float)VoxelData.chunkWidth);
+
+                            chunkX += xPos / VoxelData.chunkWidth;
+                            chunkZ += zPos / VoxelData.chunkWidth;
+             
+                            Vector2Int chunkPos = new Vector2Int(chunkX, chunkZ);
+                            
+                            if(!additionalChunkData.ContainsKey(chunkPos))
+                                additionalChunkData.Add(chunkPos, new AdditionalChunkData(chunkPos));
+
+                            BlockData data = new BlockData()
+                            {
+                                x = (testCenter.x + x) % VoxelData.chunkWidth,
+                                //x = ((temp.x % VoxelData.chunkWidth) + VoxelData.chunkWidth) % VoxelData.chunkWidth,
+                                y = testCenter.y + y,
+                                z = (testCenter.z + z) % VoxelData.chunkWidth,
+                                //z = ((temp.z % VoxelData.chunkWidth) + VoxelData.chunkWidth) % VoxelData.chunkWidth,
+                                blockID = 5
+                            };
+                            additionalChunkData[chunkPos].blockData.Add(data);
+                        }
+                        else
+                        {
+                            voxelMap[x + testCenter.x, y + testCenter.y, z + testCenter.z] = 4;
+                        }
+                    }
+                }
+            }
+            
+            
 #region Bottom Layers
 
             for (int x = 0; x < VoxelData.chunkWidth; x++)
@@ -91,6 +139,12 @@ namespace Generation
                 }
             }
 #endregion
+
+            foreach (var data in additionalChunkData)
+            {
+                WorldLoader.Instance.AddAdditionalData(data.Key, data.Value);
+            }
+            
             return voxelMap;
         }
     }

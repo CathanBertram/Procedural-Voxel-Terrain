@@ -1347,10 +1347,11 @@ MonoBehaviour:
   loadMode: 1
   chunkMaterial: {fileID: 2100000, guid: f9d31a9dbb172844db2e49f8ec5de220, type: 2}
   chunkPrefab: {fileID: 5948713939620981018, guid: 071383de1fdfc88479ba2c08ccc226b1, type: 3}
-  loadRange: 15
+  loadRange: 10
   player: {fileID: 1578896981}
   maxLoadingChunks: 5
   maxChunksToStartPerFrame: 1
+  additionalDataLoadRange: 5
 --- !u!4 &1931250891
 Transform:
   m_ObjectHideFlags: 0
@@ -1470,6 +1471,18 @@ PrefabInstance:
       value: 9
       objectReference: {fileID: 0}
     - target: {fileID: 8564530345729351322, guid: 9d092be0349469b40b714f7e575c0114, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 0.8
+      objectReference: {fileID: 0}
+    - target: {fileID: 8564530345729351322, guid: 9d092be0349469b40b714f7e575c0114, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 0.8
+      objectReference: {fileID: 0}
+    - target: {fileID: 8564530345729351322, guid: 9d092be0349469b40b714f7e575c0114, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 0.8
+      objectReference: {fileID: 0}
+    - target: {fileID: 8564530345729351322, guid: 9d092be0349469b40b714f7e575c0114, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
       objectReference: {fileID: 0}
@@ -1509,11 +1522,24 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8564530345729351325, guid: 9d092be0349469b40b714f7e575c0114, type: 3}
+      propertyPath: m_Height
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 8564530345729351325, guid: 9d092be0349469b40b714f7e575c0114, type: 3}
+      propertyPath: m_Radius
+      value: 0.35
+      objectReference: {fileID: 0}
+    - target: {fileID: 8564530345729351325, guid: 9d092be0349469b40b714f7e575c0114, type: 3}
+      propertyPath: m_StepOffset
+      value: 0.35
+      objectReference: {fileID: 0}
     - target: {fileID: 8564530345729351326, guid: 9d092be0349469b40b714f7e575c0114, type: 3}
       propertyPath: m_Name
       value: Player
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 8564530344384381675, guid: 9d092be0349469b40b714f7e575c0114, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: 9d092be0349469b40b714f7e575c0114, type: 3}
 --- !u!21 &2123081187
 Material:

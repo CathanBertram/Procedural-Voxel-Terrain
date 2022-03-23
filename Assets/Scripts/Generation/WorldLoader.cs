@@ -31,6 +31,11 @@ namespace Generation
 
         private Dictionary<Vector2Int, Chunk> loadedChunks = new Dictionary<Vector2Int, Chunk>();
         private Dictionary<Vector2Int, ChunkInfo> loadingChunkInfos = new Dictionary<Vector2Int, ChunkInfo>();
+        private List<Vector2Int> renderingChunks;
+        private List<Vector2Int> chunksToRender;
+
+        private Dictionary<Vector2Int, AdditionalChunkData> additionalChunkData =
+            new Dictionary<Vector2Int, AdditionalChunkData>(); 
 
         [SerializeField] private int loadRange = 5;
         
@@ -41,6 +46,9 @@ namespace Generation
         private int loadingChunks = 0;
         [SerializeField] private int maxLoadingChunks = 5;
         [SerializeField] private int maxChunksToStartPerFrame = 5;
+        
+        private bool isInitialLoad = true;
+        [SerializeField] private int additionalDataLoadRange;
         private static WorldLoader instance;
         public static WorldLoader Instance => instance;
     
@@ -56,9 +64,11 @@ namespace Generation
 
         private void Start()
         {
+            player.SetActive(false);
             loadedChunks = new Dictionary<Vector2Int, Chunk>();
             loadingChunkInfos = new Dictionary<Vector2Int, ChunkInfo>();
-            
+            renderingChunks = new List<Vector2Int>();
+            chunksToRender = new List<Vector2Int>();
             var position = player.transform.position;
             previousPlayerPos = new Vector2Int(Mathf.RoundToInt(position.x / VoxelData.chunkWidth), Mathf.RoundToInt(position.z / VoxelData.chunkWidth));
 
@@ -99,8 +109,28 @@ namespace Generation
         {
             return BlockDatabase.Instance.GetIsSolid(GetBlockAtIndex(x, z, blockPos));
         }
+
+        public void AddAdditionalData(Vector2Int chunkPos, AdditionalChunkData additionalData)
+        {
+            if (!TryGetChunkAtPos(chunkPos.x, chunkPos.y, out var chunk))
+            {
+                if (additionalChunkData.ContainsKey(chunkPos))
+                    additionalChunkData[chunkPos].blockData.AddRange(additionalData.blockData);
+                else
+                    additionalChunkData.Add(chunkPos, additionalData);
+            }
+            else
+            {
+                chunk.AddAdditionalData(additionalData);
+            }
+        }
         private void Update()
         {
+            if (!isInitialLoad)
+            {
+                player.SetActive(true);
+            }
+            
             for (int i = 0; i < maxChunksToStartPerFrame; i++)
             {
                 CycleChunkQueue();
@@ -117,6 +147,8 @@ namespace Generation
             
             UnloadChunks();
             LoadChunks();
+
+            
         }
         
         public bool TryGetChunkAtPos(int x, int z, out Chunk chunk)
@@ -137,11 +169,19 @@ namespace Generation
             List<Vector2Int> toRemove = new List<Vector2Int>();
             foreach (var item in loadedChunks)
             {
-                if (Vector2Int.Distance(item.Key, previousPlayerPos) > loadRange)
+                if (renderingChunks.Contains(item.Key) && !InsideCircle(item.Key, loadRange + 1))
+                {
+                    item.Value.DestroyMesh();
+                    renderingChunks.Remove(item.Key);
+                }
+
+                if (!InsideCircle(item.Key, loadRange + additionalDataLoadRange))
                 {
                     Destroy(item.Value.gameObject);
                     toRemove.Add(item.Key);
+                    renderingChunks.Remove(item.Key);
                 }
+
             }
             
             foreach (var item in toRemove)
@@ -169,17 +209,24 @@ namespace Generation
         private void LoadChunks()
         {
             List<Vector2Int> chunksToLoad = new List<Vector2Int>();
-            for (int x = -loadRange; x < loadRange; x++)
+            for (int x = -loadRange - additionalDataLoadRange; x < loadRange + additionalDataLoadRange; x++)
             {
-                for (int y = -loadRange; y < loadRange; y++)
+                for (int y = -loadRange - additionalDataLoadRange; y < loadRange + additionalDataLoadRange; y++)
                 {
                     var pos = new Vector2Int(x + previousPlayerPos.x, y + previousPlayerPos.y);
-                    if (loadedChunks.ContainsKey(pos)) continue;
-                    if (loadingChunkInfos.ContainsKey(pos)) continue;
 
-                    if (!InsideCircle(pos)) continue;
+                    if (!loadedChunks.ContainsKey(pos) && !loadingChunkInfos.ContainsKey(pos) && InsideCircle(pos, loadRange + additionalDataLoadRange))
+                        chunksToLoad.Add(pos);
+
+                    if (InsideCircle(pos, loadRange) && !renderingChunks.Contains(pos) && !isInitialLoad)
+                    {
+                        if (TryGetChunkAtPos(pos.x, pos.y, out var chunk))
+                        {
+                            chunk.RebuildMesh();
+                            renderingChunks.Add(chunk.ChunkPos);
+                        }
+                    }
                     
-                    chunksToLoad.Add(pos);
                     //GenerateChunk(pos);
                 }   
             }
@@ -220,8 +267,8 @@ namespace Generation
                     var chunk = GameObject.Instantiate(chunkPrefab, new Vector3(worldPos.x, 0, worldPos.y), Quaternion.identity).GetComponent<Chunk>();
                     chunk.Generate(chunkPos);
                     loadedChunks.Add(chunkPos, chunk);
-                    RebuildAdjacentChunkMeshes(chunkPos);
-
+                    //RebuildAdjacentChunkMeshes(chunkPos);
+                    TryAddAdjacentData(chunkPos);
                     break;
                 case LoadMode.Threaded:
                     var chunkInfo = new ChunkInfo(chunkPos, worldPos, GenerateChunkThreaded);
@@ -262,32 +309,86 @@ namespace Generation
         }
         private void OnFinishGeneration(Vector2Int chunkPos, Chunk chunk)
         {
+            if (additionalChunkData.ContainsKey(chunkPos))
+            {
+                chunk.AddAdditionalData(additionalChunkData[chunkPos]);
+                additionalChunkData.Remove(chunkPos);
+            }
+        
             loadingChunkInfos.Remove(chunkPos);
             loadingChunks--;
 
             RebuildAdjacentChunkMeshes(chunkPos);
+
+            chunk.onFinishedGeneration = null;
+            if (!isInitialLoad) return;
+
+            if (InsideCircle(chunkPos, loadRange))
+            {
+                chunksToRender.Add(chunkPos);
+            }
             
+            if (loadingChunks == 0)
+            {
+                foreach (var item in chunksToRender)
+                {
+                    if (TryGetChunkAtPos(item.x, item.y, out var c))
+                    {
+                        c.RebuildMesh();
+                    }
+                }
+                chunksToRender.Clear();
+                chunksToRender = null;
+                isInitialLoad = false;
+            }
         }
 
-        public void RebuildAdjacentChunkMeshes(Vector2Int chunkPos)
+        public void TryAddAdjacentData(Vector2Int chunkPos)
         {
             Chunk c;
+            if (additionalChunkData.ContainsKey(new Vector2Int(chunkPos.x - 1, chunkPos.y)))
+                if (TryGetChunkAtPos(chunkPos.x - 1, chunkPos.y, out c) && InsideCircle(chunkPos.x - 1, chunkPos.y))
+                    c.AddAdditionalData(additionalChunkData[new Vector2Int(chunkPos.x - 1, chunkPos.y)]);
             
-            if (TryGetChunkAtPos(chunkPos.x - 1, chunkPos.y, out c))
+            if (additionalChunkData.ContainsKey(new Vector2Int(chunkPos.x + 1, chunkPos.y)))
+                if (TryGetChunkAtPos(chunkPos.x + 1, chunkPos.y, out c)  && InsideCircle(chunkPos.x + 1, chunkPos.y))
+                    c.AddAdditionalData(additionalChunkData[new Vector2Int(chunkPos.x + 1, chunkPos.y)]);
+
+            if (additionalChunkData.ContainsKey(new Vector2Int(chunkPos.x , chunkPos.y - 1)))
+                if (TryGetChunkAtPos(chunkPos.x, chunkPos.y - 1, out c)  && InsideCircle(chunkPos.x, chunkPos.y - 1))
+                    c.AddAdditionalData(additionalChunkData[new Vector2Int(chunkPos.x, chunkPos.y - 1)]);
+
+            if (additionalChunkData.ContainsKey(new Vector2Int(chunkPos.x, chunkPos.y + 1)))
+                if (TryGetChunkAtPos(chunkPos.x, chunkPos.y + 1, out c)  && InsideCircle(chunkPos.x, chunkPos.y + 1))
+                    c.AddAdditionalData(additionalChunkData[new Vector2Int(chunkPos.x, chunkPos.y + 1)]);
+
+            RebuildAdjacentChunkMeshes(chunkPos);
+        }
+        public void RebuildAdjacentChunkMeshes(Vector2Int chunkPos)
+        {
+            if (isInitialLoad) return;
+
+            Chunk c;
+            
+            if (TryGetChunkAtPos(chunkPos.x - 1, chunkPos.y, out c) && InsideCircle(chunkPos.x - 1, chunkPos.y))
                 c.RebuildMesh();
-            if (TryGetChunkAtPos(chunkPos.x + 1, chunkPos.y, out c))
+            if (TryGetChunkAtPos(chunkPos.x + 1, chunkPos.y, out c)  && InsideCircle(chunkPos.x + 1, chunkPos.y))
                 c.RebuildMesh();
-            if (TryGetChunkAtPos(chunkPos.x, chunkPos.y - 1, out c))
+            if (TryGetChunkAtPos(chunkPos.x, chunkPos.y - 1, out c)  && InsideCircle(chunkPos.x, chunkPos.y - 1))
                 c.RebuildMesh();
-            if (TryGetChunkAtPos(chunkPos.x, chunkPos.y + 1, out c))
+            if (TryGetChunkAtPos(chunkPos.x, chunkPos.y + 1, out c)  && InsideCircle(chunkPos.x, chunkPos.y + 1))
                 c.RebuildMesh();
         }
-        private bool InsideCircle(Vector2Int pos)
+        private bool InsideCircle(Vector2Int pos, int radius)
         {
             float dx = previousPlayerPos.x - pos.x;
             float dy = previousPlayerPos.y - pos.y;
             float dSquared = dx * dx + dy * dy;
-            return dSquared <= loadRange * loadRange;
+            return dSquared <= radius * radius;
+        }
+        private bool InsideCircle(int x, int y)
+        {
+            return InsideCircle(new Vector2Int(x, y), loadRange);
         }
         
         public void SaveWorldMesh()

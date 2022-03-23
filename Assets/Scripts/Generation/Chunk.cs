@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Unity.VisualScripting;
+using UnityEditor;
 using UnityEngine;
 using Voxel;
 using static Voxel.VoxelData;
@@ -27,6 +29,7 @@ namespace Generation
         private Queue<ChunkThreadInfo<MeshData>> meshDataThreadInfoQueue = new Queue<ChunkThreadInfo<MeshData>>();
 
         public Action<Vector2Int, Chunk> onFinishedGeneration;
+        public Action<Vector2Int, Chunk> onMeshBuilt;
 
         void Start()
         {
@@ -41,6 +44,7 @@ namespace Generation
             var z = Mathf.FloorToInt(pos.z) - chunkPos.y * chunkWidth;
 
             voxelMap[x, y, z] = newBlock;
+            WorldLoader.Instance.RebuildAdjacentChunkMeshes(chunkPos);
             RequestMeshRebuild(OnRebuiltMeshDataReceived);
         }
 
@@ -75,6 +79,8 @@ namespace Generation
             meshFilter.mesh = mesh;
             meshFilter.sharedMesh = mesh;
             meshCollider.sharedMesh = mesh;
+            
+            onMeshBuilt?.Invoke(chunkPos, this);
         }
 
         public byte GetBlockAtIndex(Vector3Int pos)
@@ -153,8 +159,9 @@ namespace Generation
         private void OnVoxelMapReceived(byte[,,] _voxelMap)
         {
             voxelMap = _voxelMap;
-            
-            RequestMeshData(OnMeshDataReceived);
+            onFinishedGeneration(chunkPos, this);
+
+            //RequestMeshData(OnMeshDataReceived);
         }
 
         private void OnMeshDataReceived(MeshData meshData)
@@ -170,7 +177,6 @@ namespace Generation
             mesh.Optimize();
             mesh.RecalculateNormals();
             
-            onFinishedGeneration(chunkPos, this);
         }
         private void Update()
         {
@@ -193,7 +199,23 @@ namespace Generation
             }
         }
 
-        
+        public void DestroyMesh()
+        {
+            Mesh mesh = new Mesh();
+            meshFilter.mesh = null;
+            meshFilter.mesh = mesh;
+            
+            meshCollider.sharedMesh = null;
+            meshCollider.sharedMesh = mesh;
+        }
+        public void AddAdditionalData(AdditionalChunkData additionalChunkData)
+        {
+            foreach (var item in additionalChunkData.blockData)
+            {
+                voxelMap[item.x, item.y, item.z] = item.blockID;
+            }
+        }
+
         #endregion
         struct ChunkThreadInfo<T>
         {
@@ -206,6 +228,20 @@ namespace Generation
                 parameter = _parameter;
             }
         }
-        
+    }
+
+    [CustomEditor(typeof(Chunk))]
+    public class ChunkEditor : Editor
+    {
+        public override void OnInspectorGUI()
+        {
+            DrawDefaultInspector();
+
+            if (GUILayout.Button("RegenerateMesh"))
+            {
+                var t = (Chunk) target;
+                t.RebuildMesh();
+            }
+        }
     }
 }
