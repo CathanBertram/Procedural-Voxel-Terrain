@@ -31,9 +31,9 @@
       <option value="$PROJECT_DIR$/Assets/Scripts/Statics.cs" />
       <option value="$PROJECT_DIR$/Assets/Scripts/Generation/WorldLoader.cs" />
       <option value="$PROJECT_DIR$/Assets/Scripts/Generation/Chunk.cs" />
+      <option value="$PROJECT_DIR$/Assets/Scripts/Generation/TreeGenerator.cs" />
       <option value="$PROJECT_DIR$/Assets/Scripts/Blocks/BlockDatabase.cs" />
       <option value="$PROJECT_DIR$/Assets/Scripts/Noise.cs" />
-      <option value="$PROJECT_DIR$/Assets/Scripts/Generation/TreeGenerator.cs" />
       <option value="$PROJECT_DIR$/Assets/Scripts/Biome.cs" />
       <option value="$PROJECT_DIR$/Assets/Scripts/Generation/FeatureGenerator.cs" />
       <option value="$PROJECT_DIR$/Assets/Scripts/Generation/ChunkGenerator.cs" />
@@ -135,7 +135,7 @@
       <workItem from="1648500702215" duration="617000" />
       <workItem from="1648548528115" duration="4689000" />
       <workItem from="1648587939442" duration="972000" />
-      <workItem from="1648649470468" duration="2792000" />
+      <workItem from="1648649470468" duration="8314000" />
     </task>
     <servers />
   </component>

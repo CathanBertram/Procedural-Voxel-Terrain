@@ -10,12 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3c135859ab742834087d374707e446e5, type: 3}
-  m_Name: Desert
+  m_Name: DesertHills
   m_EditorClassIdentifier: 
   biomeName: Desert
-  easingType: 3
+  easingType: 6
   lowerBound: 0
-  upperBound: 15
+  upperBound: 40
   primaryTopLayerBlock: Sand
   primaryTopLayerBlockRange: {x: 3, y: 5}
   secondaryTopLayerBlock: SandStone

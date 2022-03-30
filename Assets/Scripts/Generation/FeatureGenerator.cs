@@ -18,6 +18,8 @@ public static class FeatureGenerator
     {
         switch (biome.featureToGenerate)
         {
+            case Biome.FeatureToGenerate.None:
+                return new FeatureData();
             case Biome.FeatureToGenerate.Cactus:
                 return GenerateCactus(chunkX, chunkZ, xPos, zPos, featureNum);
             case Biome.FeatureToGenerate.Tree:

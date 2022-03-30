@@ -35,7 +35,7 @@ MonoBehaviour:
     cellularDistanceFunction: 0
     gradientPerturbAmp: 1
     cellularReturnType: 0
-  featureToGenerate: 0
+  featureToGenerate: 1
   maxFeaturesPerChunk: 3
   maxFeatureAttempts: 16
   featureSpawnChance: 5

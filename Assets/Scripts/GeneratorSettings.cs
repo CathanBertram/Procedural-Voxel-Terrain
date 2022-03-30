@@ -48,8 +48,8 @@ public class GeneratorSettings : MonoBehaviour
         FeatureGenerator.heightEasing = heightEasing;
         FeatureGenerator.leafStartEasing = leafStartEasing;
 
-        ChunkGenerator.maxTreeAttempts = maxTreeAttempts;
-        ChunkGenerator.maxTreesPerChunk = maxTreesPerChunk;
-        ChunkGenerator.treeSpawnChance = treeSpawnChance;
+        ChunkGenerator.maxFeatureAttempts = maxTreeAttempts;
+        ChunkGenerator.maxFeaturesPerChunk = maxTreesPerChunk;
+        ChunkGenerator.featureSpawnChance = treeSpawnChance;
     }
 }

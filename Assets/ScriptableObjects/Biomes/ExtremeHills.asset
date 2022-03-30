@@ -10,15 +10,15 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3c135859ab742834087d374707e446e5, type: 3}
-  m_Name: Desert
+  m_Name: ExtremeHills
   m_EditorClassIdentifier: 
-  biomeName: Desert
+  biomeName: Plains
   easingType: 3
   lowerBound: 0
-  upperBound: 15
-  primaryTopLayerBlock: Sand
-  primaryTopLayerBlockRange: {x: 3, y: 5}
-  secondaryTopLayerBlock: SandStone
+  upperBound: 70
+  primaryTopLayerBlock: Grass
+  primaryTopLayerBlockRange: {x: 1, y: 1}
+  secondaryTopLayerBlock: Dirt
   secondaryTopLayerBlockRange: {x: 3, y: 6}
   biomeNoiseSettings:
     noiseType: 5
@@ -35,7 +35,7 @@ MonoBehaviour:
     cellularDistanceFunction: 0
     gradientPerturbAmp: 1
     cellularReturnType: 0
-  featureToGenerate: 2
+  featureToGenerate: 0
   maxFeaturesPerChunk: 3
   maxFeatureAttempts: 16
   featureSpawnChance: 5

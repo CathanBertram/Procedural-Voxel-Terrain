@@ -38,11 +38,18 @@ namespace Blocks
             blockMaterial.mainTexture = TextureGenerator.Generate(blockData);
         }
 
+        public Biome GetBiome(int id)
+        {
+            if (id > biomes.Count) return biomes[0];
+
+            return biomes[id];
+        }
+        
         public byte GetBlockID(string blockName)
         {
             if (!blockDataDictionary.ContainsKey(blockName))
             {
-                Debug.LogWarning($"Block {blockName} does not exist");
+                Debug.unityLogger.LogError($"Block {blockName} does not exist", this);
                 return 0;
             }
             

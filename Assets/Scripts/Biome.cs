@@ -26,6 +26,7 @@ public class Biome : ScriptableObject
     public int featureSpawnChance;
     public enum FeatureToGenerate
     {
+        None,
         Tree,
         Cactus
     }

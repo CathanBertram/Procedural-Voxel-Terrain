@@ -244,7 +244,9 @@ MonoBehaviour:
     rightTexture: {fileID: 2800000, guid: a198e3d699dc37c47858d5a0e3450346, type: 3}
   biomes:
   - {fileID: 11400000, guid: e668ff43e6d920d419d2a9a89de1cf19, type: 2}
+  - {fileID: 11400000, guid: a9279b085caf897498d736f16d7f86f8, type: 2}
   - {fileID: 11400000, guid: 3b430f7349bb3574d919f5586142a206, type: 2}
+  - {fileID: 11400000, guid: 01d9886d73bcf4b4f8dc65dd23353203, type: 2}
 --- !u!4 &37301855
 Transform:
   m_ObjectHideFlags: 0
@@ -490,7 +492,7 @@ MonoBehaviour:
   noiseSettings2D:
     noiseType: 6
     seed: 1337
-    frequency: 0.01
+    frequency: 0.005
     interp: 2
     cellularJitter: 0.45
     gain: 1.33

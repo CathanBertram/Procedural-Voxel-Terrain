@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using Generation;
 using Unity.Mathematics;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -172,6 +173,29 @@ public static class Noise
         FastNoise fn = noiseSettings2D.CreateFastNoise();
         fn.SetSeed(Seed);
         return fn.GetNoise(x, y);
+    }
+    public static float FNGenerateNoise(int x, int y, NoiseSettings noiseSettings)
+    {
+        FastNoise fn = noiseSettings.CreateFastNoise();
+        fn.SetSeed(Seed);
+        return fn.GetNoise(x, y);
+    }
+    public static int[,] FNGenerateBiomeMap(int w, int h, int x, int y)
+    {
+        int[,] biomeMap = new int[w, h];
+        
+        FastNoise fn = noiseSettings2D.CreateFastNoise();
+        fn.SetSeed(Seed);
+
+        for (int _x = 0; _x < w; _x++)
+        {
+            for (int _y = 0; _y < h; _y++)
+            {
+                biomeMap[_x, _y] = ChunkGenerator.GetBiomeID(x + _x, y + _y);
+            }
+        }
+
+        return biomeMap;
     }
     public static float[,] FNGenerateNoiseMap(int w, int h, int x, int y, NoiseSettings noiseSettings)
     {
