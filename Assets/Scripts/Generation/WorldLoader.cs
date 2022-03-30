@@ -328,7 +328,7 @@ namespace Generation
                 chunksToRender.Add(chunkPos);
             }
             
-            if (loadingChunks == 0)
+            if (loadingChunks == 0 && chunkLoadQueue.Count == 0)
             {
                 foreach (var item in chunksToRender)
                 {
@@ -346,23 +346,53 @@ namespace Generation
         public void TryAddAdjacentData(Vector2Int chunkPos)
         {
             Chunk c;
-            if (additionalChunkData.ContainsKey(new Vector2Int(chunkPos.x - 1, chunkPos.y)))
-                if (TryGetChunkAtPos(chunkPos.x - 1, chunkPos.y, out c) && InsideCircle(chunkPos.x - 1, chunkPos.y))
-                    c.AddAdditionalData(additionalChunkData[new Vector2Int(chunkPos.x - 1, chunkPos.y)]);
-            
-            if (additionalChunkData.ContainsKey(new Vector2Int(chunkPos.x + 1, chunkPos.y)))
-                if (TryGetChunkAtPos(chunkPos.x + 1, chunkPos.y, out c)  && InsideCircle(chunkPos.x + 1, chunkPos.y))
-                    c.AddAdditionalData(additionalChunkData[new Vector2Int(chunkPos.x + 1, chunkPos.y)]);
-
-            if (additionalChunkData.ContainsKey(new Vector2Int(chunkPos.x , chunkPos.y - 1)))
-                if (TryGetChunkAtPos(chunkPos.x, chunkPos.y - 1, out c)  && InsideCircle(chunkPos.x, chunkPos.y - 1))
-                    c.AddAdditionalData(additionalChunkData[new Vector2Int(chunkPos.x, chunkPos.y - 1)]);
-
-            if (additionalChunkData.ContainsKey(new Vector2Int(chunkPos.x, chunkPos.y + 1)))
-                if (TryGetChunkAtPos(chunkPos.x, chunkPos.y + 1, out c)  && InsideCircle(chunkPos.x, chunkPos.y + 1))
-                    c.AddAdditionalData(additionalChunkData[new Vector2Int(chunkPos.x, chunkPos.y + 1)]);
-
-            RebuildAdjacentChunkMeshes(chunkPos);
+            // if (additionalChunkData.ContainsKey(new Vector2Int(chunkPos.x - 1, chunkPos.y)))
+            //     if (TryGetChunkAtPos(chunkPos.x - 1, chunkPos.y, out c) && InsideCircle(chunkPos.x - 1, chunkPos.y))
+            //         c.AddAdditionalData(additionalChunkData[new Vector2Int(chunkPos.x - 1, chunkPos.y)]);
+            //
+            // if (additionalChunkData.ContainsKey(new Vector2Int(chunkPos.x + 1, chunkPos.y)))
+            //     if (TryGetChunkAtPos(chunkPos.x + 1, chunkPos.y, out c)  && InsideCircle(chunkPos.x + 1, chunkPos.y))
+            //         c.AddAdditionalData(additionalChunkData[new Vector2Int(chunkPos.x + 1, chunkPos.y)]);
+            //
+            // if (additionalChunkData.ContainsKey(new Vector2Int(chunkPos.x , chunkPos.y - 1)))
+            //     if (TryGetChunkAtPos(chunkPos.x, chunkPos.y - 1, out c)  && InsideCircle(chunkPos.x, chunkPos.y - 1))
+            //         c.AddAdditionalData(additionalChunkData[new Vector2Int(chunkPos.x, chunkPos.y - 1)]);
+            //
+            // if (additionalChunkData.ContainsKey(new Vector2Int(chunkPos.x, chunkPos.y + 1)))
+            //     if (TryGetChunkAtPos(chunkPos.x, chunkPos.y + 1, out c)  && InsideCircle(chunkPos.x, chunkPos.y + 1))
+            //         c.AddAdditionalData(additionalChunkData[new Vector2Int(chunkPos.x, chunkPos.y + 1)]);
+            //
+            // if (additionalChunkData.ContainsKey(new Vector2Int(chunkPos.x - 1, chunkPos.y - 1)))
+            //     if (TryGetChunkAtPos(chunkPos.x - 1, chunkPos.y - 1, out c) && InsideCircle(chunkPos.x - 1, chunkPos.y - 1))
+            //         c.AddAdditionalData(additionalChunkData[new Vector2Int(chunkPos.x - 1, chunkPos.y - 1)]);
+            //
+            // if (additionalChunkData.ContainsKey(new Vector2Int(chunkPos.x - 1, chunkPos.y + 1)))
+            //     if (TryGetChunkAtPos(chunkPos.x - 1, chunkPos.y + 1, out c)  && InsideCircle(chunkPos.x - 1, chunkPos.y + 1))
+            //         c.AddAdditionalData(additionalChunkData[new Vector2Int(chunkPos.x - 1, chunkPos.y + 1)]);
+            //
+            // if (additionalChunkData.ContainsKey(new Vector2Int(chunkPos.x + 1, chunkPos.y - 1)))
+            //     if (TryGetChunkAtPos(chunkPos.x + 1, chunkPos.y - 1, out c)  && InsideCircle(chunkPos.x + 1, chunkPos.y - 1))
+            //         c.AddAdditionalData(additionalChunkData[new Vector2Int(chunkPos.x + 1, chunkPos.y - 1)]);
+            //
+            // if (additionalChunkData.ContainsKey(new Vector2Int(chunkPos.x + 1, chunkPos.y + 1)))
+            //     if (TryGetChunkAtPos(chunkPos.x + 1, chunkPos.y + 1, out c)  && InsideCircle(chunkPos.x + 1, chunkPos.y - 1))
+            //         c.AddAdditionalData(additionalChunkData[new Vector2Int(chunkPos.x + 1, chunkPos.y + 1)]);
+            Vector2Int pos;
+            for (int x = -1; x <= 1; x++)
+            {
+                for (int y = -1; y <= 1; y++)
+                {
+                    pos = new Vector2Int(chunkPos.x + x, chunkPos.y + y);
+                    if (additionalChunkData.ContainsKey(pos))
+                        if (TryGetChunkAtPos(pos.x, pos.y, out c))
+                        {
+                            c.AddAdditionalData(additionalChunkData[pos]);
+                            additionalChunkData.Remove(pos);
+                        }
+                }
+            }
+           
+            //RebuildAdjacentChunkMeshes(chunkPos);
         }
         public void RebuildAdjacentChunkMeshes(Vector2Int chunkPos)
         {

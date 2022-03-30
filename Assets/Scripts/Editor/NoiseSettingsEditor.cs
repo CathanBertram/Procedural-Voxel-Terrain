@@ -1,36 +1,14 @@
 using System;
 using UnityEditor;
 using UnityEngine;
-[CustomEditor(typeof(NoiseSettings))]
+[CustomEditor(typeof(GeneratorSettings))]
 
 public class NoiseSettingsEditor : UnityEditor.Editor
 {
     public override void OnInspectorGUI()
 	{
-		NoiseSettings noiseSettings = ((NoiseSettings)target);
+		GeneratorSettings generatorSettings = ((GeneratorSettings)target);
 		DrawDefaultInspector();
-
-		if (GUILayout.Button("Reset"))
-		{
-			noiseSettings.seed = 1337;
-			noiseSettings.frequency = 0.01f;
-			noiseSettings.interp = FastNoise.Interp.Quintic;
-			noiseSettings.noiseType = FastNoise.NoiseType.Simplex;
-
-			noiseSettings.octaves = 3;
-			noiseSettings.lacunarity = 2.0f;
-			noiseSettings.gain = 0.5f;
-			noiseSettings.fractalType = FastNoise.FractalType.FBM;
-			
-			noiseSettings.cellularDistanceFunction = FastNoise.CellularDistanceFunction.Euclidean;
-			noiseSettings.cellularReturnType = FastNoise.CellularReturnType.CellValue;
-
-			noiseSettings.cellularDistanceIndex0 = 0;
-			noiseSettings.cellularDistanceIndex1 = 1;
-			noiseSettings.cellularJitter = 0.45f;
-
-			noiseSettings.gradientPerturbAmp = 1.0f;
-		}
 	}
 
 	public override bool HasPreviewGUI()
@@ -45,8 +23,8 @@ public class NoiseSettingsEditor : UnityEditor.Editor
 
 	public override void DrawPreview(Rect previewArea)
 	{
-		NoiseSettings noiseSettings = ((NoiseSettings)target);
-		FastNoise fastNoise = noiseSettings.CreateFastNoise();
+		GeneratorSettings generatorSettings = ((GeneratorSettings)target);
+		FastNoise fastNoise = generatorSettings.noiseSettings2D.CreateFastNoise();
 
 		Texture2D tex = new Texture2D((int)previewArea.width, (int)previewArea.height);
 		Color32[] pixels = new Color32[tex.width * tex.height];

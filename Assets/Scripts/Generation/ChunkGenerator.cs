@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.Threading;
 using Blocks;
 using Unity.Mathematics;
 using Unity.VisualScripting;
@@ -13,10 +15,13 @@ namespace Generation
         public static int lowerBound;
         public static int upperBound;
         public static float noiseCaveThreshold;
+        public static int maxTreesPerChunk;
+        public static int maxTreeAttempts;
+        public static int treeSpawnChance;
         public static byte[,,] GenerateVoxelMap(int xPos, int zPos)
         {
             //Seed Random for all random operations
-            System.Random random = new System.Random(Noise.Seed);
+            System.Random random = new System.Random(Noise.Seed + xPos + zPos);
 #region Empty
             //Create new byte[,,] for voxel map
             byte[,,] voxelMap = new byte[VoxelData.chunkWidth, VoxelData.chunkHeight, VoxelData.chunkWidth];
@@ -34,7 +39,6 @@ namespace Generation
                 {
                     //Get y position from noiseMap using an easing function
                     var yPos = VoxelData.seaLevel + Mathf.RoundToInt(Easing.Ease(easingType,lowerBound, upperBound, 0.5f * (1 + noiseMap[x,z])));
-                    
                     //Set top layer to grass
                     //TODO replace with biome block
                     voxelMap[x, yPos, z] = BlockDatabase.Instance.GetBlockID("Grass");
@@ -83,52 +87,70 @@ namespace Generation
             }
 #endregion
 
+#region GenerateTrees
             Dictionary<Vector2Int, AdditionalChunkData> additionalChunkData =
                 new Dictionary<Vector2Int, AdditionalChunkData>();
-            Vector3Int testCenter = new Vector3Int(12, 100, 13);
-            for (int x = 0; x < 8; x++)
+            List<Point> points = new List<Point>();
+            for (int i = 0; i < maxTreesPerChunk; i++)
             {
-                for (int y = 0; y < 8; y++)
+                for (int j = 0; j < maxTreeAttempts; j++)
                 {
-                    for (int z = 0; z < 8; z++)
+                    //Get pos 1 block in from chunk borders
+                    var randPos = GetRandomVec2Int(random, 1, VoxelData.chunkWidth - 2);
+                    bool useablePoint = true;
+                    foreach (var point in points)
                     {
-                        var tempPos = testCenter;
-                        tempPos.x += x;
-                        tempPos.z += z;
-                        if (tempPos.x < 0 || tempPos.x > VoxelData.chunkWidth - 1 || tempPos.y < 0 || tempPos.y > VoxelData.chunkHeight - 1 
-                            || tempPos.z < 0 || tempPos.z > VoxelData.chunkWidth - 1)
-                        {
-                            var chunkX = Mathf.FloorToInt((float)(testCenter.x + x) / (float)VoxelData.chunkWidth);
-                            var chunkZ = Mathf.FloorToInt((float)(testCenter.z + z) / (float)VoxelData.chunkWidth);
+                        if (Vector2Int.Distance(point.position, randPos) < point.radius)
+                            useablePoint = false;
+                    }
 
+                    if (!useablePoint) continue;
+
+                    if (random.Next(0, 100) > treeSpawnChance) continue;
+
+                    var treeData = TreeGenerator.GenerateTree(xPos, zPos, randPos.x, randPos.y, i);
+                    points.Add(new Point(treeData.radius, randPos));
+
+                    int yPos = yPos = VoxelData.seaLevel + Mathf.RoundToInt(Easing.Ease(easingType, lowerBound,
+                        upperBound, 0.5f * (1 + noiseMap[randPos.x, randPos.y]))) + 1;
+                    
+                    if (voxelMap[randPos.x, yPos - 1, randPos.y] == VoxelData.airID) continue;
+                    
+                    var startPos = new Vector3Int(randPos.x, yPos, randPos.y);
+                    foreach (var kvp in treeData.treeData)
+                    {
+                        var pos = kvp.Key + startPos;
+                
+                        if (pos.x < 0 || pos.x > VoxelData.chunkWidth - 1 || pos.y < 0 || pos.y > VoxelData.chunkHeight - 1 
+                            || pos.z < 0 || pos.z > VoxelData.chunkWidth - 1)
+                        {
+                            var chunkX = Mathf.FloorToInt((float)(pos.x) / VoxelData.chunkWidth);
+                            var chunkZ = Mathf.FloorToInt((float)(pos.z) / VoxelData.chunkWidth);
+                
                             chunkX += xPos / VoxelData.chunkWidth;
                             chunkZ += zPos / VoxelData.chunkWidth;
-             
+                
                             Vector2Int chunkPos = new Vector2Int(chunkX, chunkZ);
-                            
+                    
                             if(!additionalChunkData.ContainsKey(chunkPos))
                                 additionalChunkData.Add(chunkPos, new AdditionalChunkData(chunkPos));
-
+                            
                             BlockData data = new BlockData()
                             {
-                                x = (testCenter.x + x) % VoxelData.chunkWidth,
-                                //x = ((temp.x % VoxelData.chunkWidth) + VoxelData.chunkWidth) % VoxelData.chunkWidth,
-                                y = testCenter.y + y,
-                                z = (testCenter.z + z) % VoxelData.chunkWidth,
-                                //z = ((temp.z % VoxelData.chunkWidth) + VoxelData.chunkWidth) % VoxelData.chunkWidth,
-                                blockID = 5
+                                x = (pos.x + VoxelData.chunkWidth) % VoxelData.chunkWidth,
+                                y = (pos.y + VoxelData.chunkHeight) % VoxelData.chunkHeight,
+                                z = (pos.z + VoxelData.chunkWidth) % VoxelData.chunkWidth,
+                                blockID = kvp.Value
                             };
                             additionalChunkData[chunkPos].blockData.Add(data);
                         }
                         else
-                        {
-                            voxelMap[x + testCenter.x, y + testCenter.y, z + testCenter.z] = 4;
-                        }
+                            voxelMap[pos.x, pos.y, pos.z] = kvp.Value;
                     }
                 }
             }
-            
-            
+            #endregion
+
 #region Bottom Layers
 
             for (int x = 0; x < VoxelData.chunkWidth; x++)
@@ -146,6 +168,26 @@ namespace Generation
             }
             
             return voxelMap;
+        }
+
+        private static Vector2Int GetRandomVec2Int(System.Random random, int min, int max)
+        {
+            var x = random.Next(min, max);
+            var y = random.Next(min, max);
+
+            return new Vector2Int(x, y);
+        }
+
+        private struct Point
+        {
+            public int radius;
+            public Vector2Int position;
+
+            public Point(int _radius, Vector2Int _position)
+            {
+                radius = _radius;
+                position = _position;
+            }
         }
     }
 }

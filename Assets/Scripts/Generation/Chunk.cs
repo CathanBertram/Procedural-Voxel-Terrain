@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
@@ -16,7 +17,7 @@ namespace Generation
         [SerializeField] private MeshRenderer meshRenderer;
         [SerializeField] private MeshFilter meshFilter;
         [SerializeField] private MeshCollider meshCollider;
-
+        private bool isRendering = false;
         int vertexIndex = 0;
 
         // byte 32768 short 65336 int 137000
@@ -79,6 +80,8 @@ namespace Generation
             meshFilter.mesh = mesh;
             meshFilter.sharedMesh = mesh;
             meshCollider.sharedMesh = mesh;
+
+            isRendering = true;
             
             onMeshBuilt?.Invoke(chunkPos, this);
         }
@@ -100,6 +103,7 @@ namespace Generation
         public void Generate(Vector2Int _chunkPos)
         {
             chunkPos = _chunkPos;
+            gameObject.name = $"Chunk {chunkPos.x}, {chunkPos.y}";
             
             voxelMap = ChunkGenerator.GenerateVoxelMap(chunkPos.x * chunkWidth, chunkPos.y * chunkWidth);
             var mesh = MeshGenerator.GenerateMesh(voxelMap, chunkPos);
@@ -121,6 +125,7 @@ namespace Generation
         public void GenerateThreaded(Vector2Int _chunkPos)
         {
             chunkPos = _chunkPos;
+            gameObject.name = $"Chunk {chunkPos.x}, {chunkPos.y}";
             RequestVoxelMap(OnVoxelMapReceived);
         }
         
@@ -176,8 +181,10 @@ namespace Generation
             
             mesh.Optimize();
             mesh.RecalculateNormals();
-            
+
+            isRendering = true;
         }
+        
         private void Update()
         {
             if (voxelMapThreadInfoQueue.Count > 0)
@@ -214,6 +221,20 @@ namespace Generation
             {
                 voxelMap[item.x, item.y, item.z] = item.blockID;
             }
+        }
+
+        private void OnDrawGizmos()
+        {
+            if (isRendering) return;
+            
+            Gizmos.color = new Color(0.2f,0.2f,0.2f, 0.2f);
+
+            var pos = transform.position;
+            pos.x += VoxelData.chunkWidth * 0.5f;
+            pos.y += VoxelData.chunkHeight * 0.2f;
+            pos.z += VoxelData.chunkWidth * 0.5f;
+            var extents = new Vector3(VoxelData.chunkWidth, VoxelData.chunkHeight * 0.2f, VoxelData.chunkWidth);
+            Gizmos.DrawCube(pos, extents);
         }
 
         #endregion

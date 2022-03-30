@@ -7,34 +7,12 @@ using Random = UnityEngine.Random;
 
 public static class Noise
 {
-    private static FastNoise.NoiseType noiseType;
-    private static int seed = 1337;
-    public static int Seed => seed;
-    private static FastNoise.Interp interp = FastNoise.Interp.Quintic;
-    private static float frequency = 0.01f;
-    private static float gain = 0.5f;
-    private static float lacunarity = 2.0f;
-    private static int octaves = 3;
-    private static FastNoise.FractalType fractalType = FastNoise.FractalType.FBM;
-    //Cellular Settings
-    private static float cellularJitter = 0.45f;
-    private static int cellularDistanceIndex0 = 0;
-    private static int cellularDistanceIndex1 = 1;
-    private static FastNoise.CellularDistanceFunction cellularDistanceFunction = FastNoise.CellularDistanceFunction.Euclidean;
-    private static FastNoise.CellularReturnType cellularReturnType = FastNoise.CellularReturnType.CellValue;
-    private static float gradientPerturbAmp = 1.0f;
+    public static int Seed = 1337;
 
-    public static void SetSettings(FastNoise.NoiseType _noiseType = FastNoise.NoiseType.Simplex, int _seed = 1337, FastNoise.Interp _interp = FastNoise.Interp.Quintic, float _frequency = 0.01f,
-        float _gain = 0.5f, float _lacunarity = 2.0f, int _octaves = 3, FastNoise.FractalType _fractalType = FastNoise.FractalType.FBM, float _cellularJitter = 0.45f, 
-        int _cellularDistanceIndex0 = 0, int _cellularDistanceIndex1 = 1, FastNoise.CellularDistanceFunction _cellularDistanceFunction = FastNoise.CellularDistanceFunction.Euclidean,
-        FastNoise.CellularReturnType _cellularReturnType = FastNoise.CellularReturnType.CellValue, float _gradientPerturbAmp = 1.0f)
-    {
-        noiseType = _noiseType; seed = _seed; interp = _interp; frequency = _frequency; gain = _gain; lacunarity = _lacunarity; octaves = _octaves; fractalType = _fractalType;
-        cellularJitter = _cellularJitter; cellularDistanceIndex0 = _cellularDistanceIndex0; cellularDistanceIndex1 = _cellularDistanceIndex1; cellularDistanceFunction = _cellularDistanceFunction;
-        cellularReturnType = _cellularReturnType; gradientPerturbAmp = _gradientPerturbAmp;
-    }
-
+    public static NoiseSettings noiseSettings2D;
+    public static NoiseSettings noiseSettings3D;
     
+
     // public static float UnityPerlinNoise2D(float x, float y, System.Random prng)
     // {
     //     Vector2[] octaveOffsets = new Vector2[perlinNoiseSettings.octaves];
@@ -192,26 +170,7 @@ public static class Noise
     {
         float[,] noiseMap = new float[w, h];
         
-        FastNoise fn = new FastNoise();
-
-        fn.SetNoiseType(noiseType);
-        fn.SetSeed(seed);
-        fn.SetFrequency(frequency);
-        fn.SetInterp(interp);
-        
-        //Fractal Settings
-        fn.SetFractalGain(gain);
-        fn.SetFractalLacunarity(lacunarity);
-        fn.SetFractalOctaves(octaves);
-        fn.SetFractalType(fractalType);
-        
-        //Cellular Settings
-        fn.SetCellularDistance2Indicies(cellularDistanceIndex0, cellularDistanceIndex1);
-        fn.SetCellularDistanceFunction(cellularDistanceFunction);
-        fn.SetCellularJitter(cellularJitter);
-        fn.SetCellularReturnType(cellularReturnType);
-        
-        fn.SetGradientPerturbAmp(gradientPerturbAmp);
+        FastNoise fn = noiseSettings2D.CreateFastNoise();
 
         for (int _x = 0; _x < w; _x++)
         {
@@ -223,31 +182,12 @@ public static class Noise
 
         return noiseMap;
     }
-    
+
     public static float[,,] FNGenerateNoiseMap(int w, int h, int d, int x, int y, int z)
     {
         float[,,] noiseMap = new float[w, h, d];
-        
-        FastNoise fn = new FastNoise();
 
-        fn.SetNoiseType(noiseType);
-        fn.SetSeed(seed);
-        fn.SetFrequency(frequency);
-        fn.SetInterp(interp);
-        
-        //Fractal Settings
-        fn.SetFractalGain(gain);
-        fn.SetFractalLacunarity(lacunarity);
-        fn.SetFractalOctaves(octaves);
-        fn.SetFractalType(fractalType);
-        
-        //Cellular Settings
-        fn.SetCellularDistance2Indicies(cellularDistanceIndex0, cellularDistanceIndex1);
-        fn.SetCellularDistanceFunction(cellularDistanceFunction);
-        fn.SetCellularJitter(cellularJitter);
-        fn.SetCellularReturnType(cellularReturnType);
-        
-        fn.SetGradientPerturbAmp(gradientPerturbAmp);
+        FastNoise fn = noiseSettings3D.CreateFastNoise();
 
         for (int _x = 0; _x < w; _x++)
         {

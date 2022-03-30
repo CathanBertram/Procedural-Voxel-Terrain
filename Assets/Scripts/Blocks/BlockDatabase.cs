@@ -37,6 +37,12 @@ namespace Blocks
 
         public byte GetBlockID(string blockName)
         {
+            if (!blockDataDictionary.ContainsKey(blockName))
+            {
+                Debug.LogWarning($"Block {blockName} does not exist");
+                return 0;
+            }
+            
             return blockDataDictionary[blockName];
         }
 

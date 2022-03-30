@@ -210,6 +210,14 @@ MonoBehaviour:
     bottomTexture: {fileID: 2800000, guid: 43fda114395ec2f4fba7ab1165ef4765, type: 3}
     leftTexture: {fileID: 2800000, guid: 43fda114395ec2f4fba7ab1165ef4765, type: 3}
     rightTexture: {fileID: 2800000, guid: 43fda114395ec2f4fba7ab1165ef4765, type: 3}
+  - blockName: Leaves
+    isSolid: 0
+    backTexture: {fileID: 2800000, guid: 6f9c3adef9439a54c99845998f1dc221, type: 3}
+    frontTexture: {fileID: 2800000, guid: 6f9c3adef9439a54c99845998f1dc221, type: 3}
+    topTexture: {fileID: 2800000, guid: 6f9c3adef9439a54c99845998f1dc221, type: 3}
+    bottomTexture: {fileID: 2800000, guid: 6f9c3adef9439a54c99845998f1dc221, type: 3}
+    leftTexture: {fileID: 2800000, guid: 6f9c3adef9439a54c99845998f1dc221, type: 3}
+    rightTexture: {fileID: 2800000, guid: 6f9c3adef9439a54c99845998f1dc221, type: 3}
 --- !u!4 &37301855
 Transform:
   m_ObjectHideFlags: 0
@@ -427,15 +435,15 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 627798553}
-  - component: {fileID: 627798552}
+  - component: {fileID: 627798551}
   m_Layer: 0
-  m_Name: NoiseSettings
+  m_Name: GeneratorSettings
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &627798552
+--- !u!114 &627798551
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -444,28 +452,53 @@ MonoBehaviour:
   m_GameObject: {fileID: 627798550}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a75ca5cdbb979cc469a2d3f99451834b, type: 3}
+  m_Script: {fileID: 11500000, guid: 63a6491b2b59b0a4e92765d0f53d9695, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  noiseCaveThreshold: 0.25
   easingType: 3
   lowerBound: 0
   upperBound: 20
-  noiseCaveThreshold: 0.2
-  updateVFX: 1
-  noiseType: 5
-  seed: 1442
-  frequency: 0.01
-  interp: 2
-  cellularJitter: 0.359
-  gain: 0.17
-  lacunarity: 1.66
-  octaves: 3
-  fractalType: 0
-  cellularDistanceIndex0: 0
-  cellularDistanceIndex1: 1
-  cellularDistanceFunction: 2
-  gradientPerturbAmp: 1
-  cellularReturnType: 0
+  seed: 1337
+  noiseSettings2D:
+    noiseType: 5
+    seed: 1337
+    frequency: 0.01
+    interp: 2
+    cellularJitter: 0.45
+    gain: 1.33
+    lacunarity: 1.16
+    octaves: 3
+    fractalType: 0
+    cellularDistanceIndex0: 0
+    cellularDistanceIndex1: 1
+    cellularDistanceFunction: 0
+    gradientPerturbAmp: 1
+    cellularReturnType: 0
+  noiseSettings3D:
+    noiseType: 5
+    seed: 1337
+    frequency: 0.03
+    interp: 2
+    cellularJitter: 0.45
+    gain: 0.07
+    lacunarity: 1.28
+    octaves: 2
+    fractalType: 0
+    cellularDistanceIndex0: 0
+    cellularDistanceIndex1: 1
+    cellularDistanceFunction: 2
+    gradientPerturbAmp: 1
+    cellularReturnType: 0
+  heightEasing: 3
+  leafStartEasing: 3
+  minTreeHeight: 4
+  maxTreeHeight: 7
+  minLeafStart: 0.463
+  maxLeafStart: 0.66
+  maxTreesPerChunk: 3
+  maxTreeAttempts: 16
+  treeSpawnChance: 5
 --- !u!4 &627798553
 Transform:
   m_ObjectHideFlags: 0
@@ -614,6 +647,36 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 8
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &825286544
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 825286546}
+  m_Layer: 0
+  m_Name: NoiseSettings
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!4 &825286546
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 825286544}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 48.730885, y: 20.654495, z: 49.80162}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 13
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &901268417
 GameObject:
@@ -1347,7 +1410,7 @@ MonoBehaviour:
   loadMode: 1
   chunkMaterial: {fileID: 2100000, guid: f9d31a9dbb172844db2e49f8ec5de220, type: 2}
   chunkPrefab: {fileID: 5948713939620981018, guid: 071383de1fdfc88479ba2c08ccc226b1, type: 3}
-  loadRange: 10
+  loadRange: 5
   player: {fileID: 1578896981}
   maxLoadingChunks: 5
   maxChunksToStartPerFrame: 1
