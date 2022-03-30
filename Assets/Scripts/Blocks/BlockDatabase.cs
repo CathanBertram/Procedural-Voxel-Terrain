@@ -12,10 +12,13 @@ namespace Blocks
         [SerializeField] private Material blockMaterial;
 
         [SerializeField] private BlockData[] blockData;
+        [SerializeField] private List<Biome> biomes;
+        public List<Biome> Biomes => biomes;
+        
         private Dictionary<string, byte> blockDataDictionary = new Dictionary<string, byte>();
         public Dictionary<string, byte> BlockDataDictionary => blockDataDictionary;
         public BlockData[] BlockData => blockData;
-
+        
         private void Awake()
         {
             if (instance != null && instance != this)

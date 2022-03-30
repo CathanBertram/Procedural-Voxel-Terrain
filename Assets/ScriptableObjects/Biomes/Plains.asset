@@ -1,0 +1,41 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3c135859ab742834087d374707e446e5, type: 3}
+  m_Name: Plains
+  m_EditorClassIdentifier: 
+  biomeName: Plains
+  easingType: 3
+  lowerBound: 0
+  upperBound: 20
+  primaryTopLayerBlock: Grass
+  primaryTopLayerBlockRange: {x: 1, y: 1}
+  secondaryTopLayerBlock: Dirt
+  secondaryTopLayerBlockRange: {x: 3, y: 6}
+  biomeNoiseSettings:
+    noiseType: 5
+    seed: 1337
+    frequency: 0.01
+    interp: 2
+    cellularJitter: 0.45
+    gain: 1.33
+    lacunarity: 1.16
+    octaves: 3
+    fractalType: 0
+    cellularDistanceIndex0: 0
+    cellularDistanceIndex1: 1
+    cellularDistanceFunction: 0
+    gradientPerturbAmp: 1
+    cellularReturnType: 0
+  featureToGenerate: 0
+  maxFeaturesPerChunk: 3
+  maxFeatureAttempts: 16
+  featureSpawnChance: 5

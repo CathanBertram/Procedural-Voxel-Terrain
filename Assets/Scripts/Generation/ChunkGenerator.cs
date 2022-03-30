@@ -18,10 +18,30 @@ namespace Generation
         public static int maxTreesPerChunk;
         public static int maxTreeAttempts;
         public static int treeSpawnChance;
+        
         public static byte[,,] GenerateVoxelMap(int xPos, int zPos)
         {
             //Seed Random for all random operations
             System.Random random = new System.Random(Noise.Seed + xPos + zPos);
+#region PickBiome
+            var biomeNoise = 0.5 * (1 + Noise.FNGenerateNoise(xPos, zPos));
+            var biomeRange = 1f / BlockDatabase.Instance.Biomes.Count;
+            float temp = 0;
+            int count = 0;
+            Biome biome = BlockDatabase.Instance.Biomes[0];
+            do
+            {
+                temp += biomeRange;
+
+                if (biomeNoise < temp)
+                {
+                    biome = BlockDatabase.Instance.Biomes[count];
+                    break;
+                }
+
+                count++;
+            } while (temp < 1);
+#endregion
 #region Empty
             //Create new byte[,,] for voxel map
             byte[,,] voxelMap = new byte[VoxelData.chunkWidth, VoxelData.chunkHeight, VoxelData.chunkWidth];
@@ -29,7 +49,7 @@ namespace Generation
 
 #region Surface and Fill
             //Generate a 2D noise map
-            float[,] noiseMap = Noise.FNGenerateNoiseMap(VoxelData.chunkWidth, VoxelData.chunkWidth, Mathf.FloorToInt(xPos), Mathf.FloorToInt(zPos));
+            float[,] noiseMap = Noise.FNGenerateNoiseMap(VoxelData.chunkWidth, VoxelData.chunkWidth, Mathf.FloorToInt(xPos), Mathf.FloorToInt(zPos), biome.biomeNoiseSettings);
 
             //Loop through x column
             for (int x = 0; x < VoxelData.chunkWidth; x++)
@@ -38,20 +58,24 @@ namespace Generation
                 for (int z = 0; z < VoxelData.chunkWidth; z++)
                 {
                     //Get y position from noiseMap using an easing function
-                    var yPos = VoxelData.seaLevel + Mathf.RoundToInt(Easing.Ease(easingType,lowerBound, upperBound, 0.5f * (1 + noiseMap[x,z])));
+                    var yPos = VoxelData.seaLevel + Mathf.RoundToInt(Easing.Ease(biome.easingType,biome.lowerBound, biome.upperBound, 0.5f * (1 + noiseMap[x,z])));
                     //Set top layer to grass
                     //TODO replace with biome block
-                    voxelMap[x, yPos, z] = BlockDatabase.Instance.GetBlockID("Grass");
                     
                     //Calculate how many layers of dirt there are
-                    //TODO replace with biome specific data
-                    var dirtLayerEnd = yPos - random.Next(2, 5);
+                    var primaryLayerEnd = yPos - random.Next(biome.primaryTopLayerBlockRange.x,
+                        biome.primaryTopLayerBlockRange.y);
+                    var secondaryLayerEnd = yPos - random.Next(biome.secondaryTopLayerBlockRange.x, biome.secondaryTopLayerBlockRange.y);
                     //Loop through yPos and set block data
-                    for (int i = yPos - 1; i >= 0; i--)
+                    for (int i = yPos; i >= 0; i--)
                     {
-                        if (i > dirtLayerEnd)
+                        if (i > primaryLayerEnd)
                         {
-                            voxelMap[x, i, z] = BlockDatabase.Instance.GetBlockID("Dirt");
+                            voxelMap[x, yPos, z] = BlockDatabase.Instance.GetBlockID(biome.primaryTopLayerBlock);
+                        }
+                        else if (i > secondaryLayerEnd)
+                        {
+                            voxelMap[x, i, z] = BlockDatabase.Instance.GetBlockID(biome.secondaryTopLayerBlock);
                         }
                         else
                         {
@@ -91,9 +115,9 @@ namespace Generation
             Dictionary<Vector2Int, AdditionalChunkData> additionalChunkData =
                 new Dictionary<Vector2Int, AdditionalChunkData>();
             List<Point> points = new List<Point>();
-            for (int i = 0; i < maxTreesPerChunk; i++)
+            for (int i = 0; i < biome.maxFeaturesPerChunk; i++)
             {
-                for (int j = 0; j < maxTreeAttempts; j++)
+                for (int j = 0; j < biome.maxFeatureAttempts; j++)
                 {
                     //Get pos 1 block in from chunk borders
                     var randPos = GetRandomVec2Int(random, 1, VoxelData.chunkWidth - 2);
@@ -106,18 +130,18 @@ namespace Generation
 
                     if (!useablePoint) continue;
 
-                    if (random.Next(0, 100) > treeSpawnChance) continue;
+                    if (random.Next(0, 100) > biome.featureSpawnChance) continue;
 
-                    var treeData = TreeGenerator.GenerateTree(xPos, zPos, randPos.x, randPos.y, i);
+                    var treeData = FeatureGenerator.GenerateFeature(biome, xPos, zPos, randPos.x, randPos.y, i);
                     points.Add(new Point(treeData.radius, randPos));
 
-                    int yPos = yPos = VoxelData.seaLevel + Mathf.RoundToInt(Easing.Ease(easingType, lowerBound,
-                        upperBound, 0.5f * (1 + noiseMap[randPos.x, randPos.y]))) + 1;
+                    int yPos = yPos = VoxelData.seaLevel + Mathf.RoundToInt(Easing.Ease(biome.easingType, biome.lowerBound,
+                        biome.upperBound, 0.5f * (1 + noiseMap[randPos.x, randPos.y]))) + 1;
                     
                     if (voxelMap[randPos.x, yPos - 1, randPos.y] == VoxelData.airID) continue;
                     
                     var startPos = new Vector3Int(randPos.x, yPos, randPos.y);
-                    foreach (var kvp in treeData.treeData)
+                    foreach (var kvp in treeData.featureData)
                     {
                         var pos = kvp.Key + startPos;
                 
@@ -188,6 +212,12 @@ namespace Generation
                 radius = _radius;
                 position = _position;
             }
+        }
+
+        private struct HeightMapData
+        {
+            public float value;
+            public Biome biome;
         }
     }
 }

@@ -40,13 +40,13 @@ public class GeneratorSettings : MonoBehaviour
         ChunkGenerator.upperBound = upperBound;
         ChunkGenerator.noiseCaveThreshold = noiseCaveThreshold;
         
-        TreeGenerator.minLeafStart = minLeafStart;
-        TreeGenerator.maxLeafStart = maxLeafStart;
-        TreeGenerator.maxTreeHeight = maxTreeHeight;
-        TreeGenerator.minTreeHeight = minTreeHeight;
+        FeatureGenerator.minLeafStart = minLeafStart;
+        FeatureGenerator.maxLeafStart = maxLeafStart;
+        FeatureGenerator.maxTreeHeight = maxTreeHeight;
+        FeatureGenerator.minTreeHeight = minTreeHeight;
 
-        TreeGenerator.heightEasing = heightEasing;
-        TreeGenerator.leafStartEasing = leafStartEasing;
+        FeatureGenerator.heightEasing = heightEasing;
+        FeatureGenerator.leafStartEasing = leafStartEasing;
 
         ChunkGenerator.maxTreeAttempts = maxTreeAttempts;
         ChunkGenerator.maxTreesPerChunk = maxTreesPerChunk;

@@ -165,12 +165,37 @@ public static class Noise
 
         return noiseMap;
     }
-    
+
+
+    public static float FNGenerateNoise(int x, int y)
+    {
+        FastNoise fn = noiseSettings2D.CreateFastNoise();
+        fn.SetSeed(Seed);
+        return fn.GetNoise(x, y);
+    }
+    public static float[,] FNGenerateNoiseMap(int w, int h, int x, int y, NoiseSettings noiseSettings)
+    {
+        float[,] noiseMap = new float[w, h];
+        
+        FastNoise fn = noiseSettings.CreateFastNoise();
+        fn.SetSeed(Seed);
+
+        for (int _x = 0; _x < w; _x++)
+        {
+            for (int _y = 0; _y < h; _y++)
+            {
+                noiseMap[_x, _y] = fn.GetNoise(_x + x, _y + y);
+            }
+        }
+
+        return noiseMap;
+    }
     public static float[,] FNGenerateNoiseMap(int w, int h, int x, int y)
     {
         float[,] noiseMap = new float[w, h];
         
         FastNoise fn = noiseSettings2D.CreateFastNoise();
+        fn.SetSeed(Seed);
 
         for (int _x = 0; _x < w; _x++)
         {
@@ -188,6 +213,7 @@ public static class Noise
         float[,,] noiseMap = new float[w, h, d];
 
         FastNoise fn = noiseSettings3D.CreateFastNoise();
+        fn.SetSeed(Seed);
 
         for (int _x = 0; _x < w; _x++)
         {
