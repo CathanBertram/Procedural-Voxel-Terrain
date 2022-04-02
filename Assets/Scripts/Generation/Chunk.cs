@@ -225,6 +225,8 @@ namespace Generation
 
         private void OnDrawGizmos()
         {
+            if (!WorldLoader.drawGizmos) return;
+
             if (isRendering) return;
             
             Gizmos.color = new Color(0.2f,0.2f,0.2f, 0.2f);

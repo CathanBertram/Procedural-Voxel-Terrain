@@ -24,7 +24,7 @@ namespace Generation
             Default,
             Threaded
         }
-
+        public static bool drawGizmos = false;
         [SerializeField] private LoadMode loadMode;
         [SerializeField] private Material chunkMaterial;
         [SerializeField] private GameObject chunkPrefab;
@@ -442,7 +442,11 @@ namespace Generation
             AssetDatabase.CreateAsset(mesh, $"Assets/GeneratedMeshes/Mesh{UnityEngine.Random.Range(0,10000)}.asset");
             AssetDatabase.SaveAssets();
         }
-        
+
+        public void ToggleGizmos()
+        {
+            drawGizmos = !drawGizmos;
+        }
         struct ChunkInfo
         {
             public readonly Vector2Int chunkPos;
@@ -466,7 +470,10 @@ namespace Generation
             DrawDefaultInspector();
 
             WorldLoader myTarget = (WorldLoader) target;
-
+            if (GUILayout.Button("Toggle Gizmos"))
+            {
+                myTarget.ToggleGizmos();
+            }
             if (GUILayout.Button("Save World Mesh"))
             {
                 myTarget.SaveWorldMesh();
