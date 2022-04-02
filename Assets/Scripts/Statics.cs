@@ -1,9 +1,23 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
 public static class Statics
 {
-    
+    public static event Action onFinishInitialGeneration;
+    public static void OnFinishInitialGeneration() { onFinishInitialGeneration?.Invoke(); }
+
+    public static event Action onStartWorld;
+    public static void OnStartWorld(){onStartWorld?.Invoke();}
+
+    public static event Action<Vector2Int> onStartChunkGen;
+    public static void OnStartChunkGen(Vector2Int pos) {onStartChunkGen?.Invoke(pos);}
+    public static event Action<Vector2Int> onChunkGenerated;
+    public static void OnChunkGenerated(Vector2Int pos) {onChunkGenerated?.Invoke(pos);}
+
+    public static event Action<int> onBroadcastLoadingCount;
+
+    public static void OnBroadcastLoadingCount(int count) { onBroadcastLoadingCount?.Invoke(count); }
 }
 
 public struct MeshData

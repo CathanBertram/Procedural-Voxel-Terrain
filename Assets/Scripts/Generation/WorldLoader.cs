@@ -28,6 +28,8 @@ namespace Generation
         [SerializeField] private LoadMode loadMode;
         [SerializeField] private Material chunkMaterial;
         [SerializeField] private GameObject chunkPrefab;
+        [SerializeField] private bool loadAroundPlayer;
+        public bool autoStart;
 
         private Dictionary<Vector2Int, Chunk> loadedChunks = new Dictionary<Vector2Int, Chunk>();
         private Dictionary<Vector2Int, ChunkInfo> loadingChunkInfos = new Dictionary<Vector2Int, ChunkInfo>();
@@ -60,6 +62,16 @@ namespace Generation
             } else {
                 instance = this;
             }
+        }
+
+        private void OnEnable()
+        {
+            Statics.onStartWorld += StartWorld;
+        }
+
+        private void OnDisable()
+        {
+            Statics.onStartWorld -= StartWorld;
         }
 
         private void Start()
@@ -126,11 +138,6 @@ namespace Generation
         }
         private void Update()
         {
-            if (!isInitialLoad)
-            {
-                player.SetActive(true);
-            }
-            
             for (int i = 0; i < maxChunksToStartPerFrame; i++)
             {
                 CycleChunkQueue();
@@ -205,7 +212,6 @@ namespace Generation
             }
         }
 
-        
         private void LoadChunks()
         {
             List<Vector2Int> chunksToLoad = new List<Vector2Int>();
@@ -231,7 +237,11 @@ namespace Generation
                 }   
             }
 
-            chunksToLoad = chunksToLoad.OrderBy(x => Vector2Int.Distance(previousPlayerPos, x)).ToList();
+            if (isInitialLoad)
+                Statics.OnBroadcastLoadingCount(chunksToLoad.Count);
+            
+            if(loadAroundPlayer)
+                chunksToLoad = chunksToLoad.OrderBy(x => Vector2Int.Distance(previousPlayerPos, x)).ToList();
 
             foreach (var item in chunksToLoad)
             {
@@ -285,6 +295,7 @@ namespace Generation
 
         private void GenerateChunkThreaded(ChunkInfo info)
         {
+            Statics.OnStartChunkGen(info.chunkPos);
             var chunkPos = info.chunkPos;
             var worldPos = info.worldPos;
             
@@ -309,6 +320,8 @@ namespace Generation
         }
         private void OnFinishGeneration(Vector2Int chunkPos, Chunk chunk)
         {
+            Statics.OnChunkGenerated(chunkPos);
+            
             if (additionalChunkData.ContainsKey(chunkPos))
             {
                 chunk.AddAdditionalData(additionalChunkData[chunkPos]);
@@ -340,6 +353,7 @@ namespace Generation
                 chunksToRender.Clear();
                 chunksToRender = null;
                 isInitialLoad = false;
+                Statics.OnFinishInitialGeneration();
             }
         }
 
@@ -443,6 +457,11 @@ namespace Generation
             AssetDatabase.SaveAssets();
         }
 
+        public void StartWorld()
+        {
+            player.SetActive(true);
+        }
+        
         public void ToggleGizmos()
         {
             drawGizmos = !drawGizmos;
