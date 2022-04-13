@@ -112,6 +112,8 @@ namespace Generation
             meshCollider.sharedMesh = mesh;
             mesh.Optimize();
             mesh.RecalculateNormals();
+            
+            onFinishedGeneration?.Invoke(chunkPos, this);
         }
 #endregion
 

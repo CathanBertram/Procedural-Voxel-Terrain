@@ -6,6 +6,7 @@ using Unity.Mathematics;
 using Unity.VisualScripting;
 using UnityEngine;
 using Voxel;
+using Random = System.Random;
 
 namespace Generation
 {
@@ -73,28 +74,28 @@ namespace Generation
 #endregion
 
 #region Carve
-            //Generate 3D noise map for caves
-            float[,,] caveMap = Noise.FNGenerateNoiseMap(VoxelData.chunkWidth, VoxelData.chunkHeight,
-                VoxelData.chunkWidth, Mathf.FloorToInt(xPos), 0, Mathf.FloorToInt(zPos));
-            
-            //Loop through xPos
-            for (int x = 0; x < VoxelData.chunkWidth; x++)
-            {
-                //Loop through yPos
-                for (int y = 0; y < VoxelData.chunkHeight; y++)
-                {
-                    //Loop through zPos
-                    for (int z = 0; z < VoxelData.chunkWidth; z++)
-                    {
-                        //Get noise from caveMap and check if value is below threshold
-                        //If it is, set block to air
-                        if (0.5f * (caveMap[x,y,z] + 1) < noiseCaveThreshold)
-                        {
-                            voxelMap[x, y, z] = VoxelData.airID;
-                        }
-                    }
-                }   
-            }
+            // //Generate 3D noise map for caves
+            // float[,,] caveMap = Noise.FNGenerateNoiseMap(VoxelData.chunkWidth, VoxelData.chunkHeight,
+            //     VoxelData.chunkWidth, Mathf.FloorToInt(xPos), 0, Mathf.FloorToInt(zPos));
+            //
+            // //Loop through xPos
+            // for (int x = 0; x < VoxelData.chunkWidth; x++)
+            // {
+            //     //Loop through yPos
+            //     for (int y = 0; y < VoxelData.chunkHeight; y++)
+            //     {
+            //         //Loop through zPos
+            //         for (int z = 0; z < VoxelData.chunkWidth; z++)
+            //         {
+            //             //Get noise from caveMap and check if value is below threshold
+            //             //If it is, set block to air
+            //             if (0.5f * (caveMap[x,y,z] + 1) < noiseCaveThreshold)
+            //             {
+            //                 voxelMap[x, y, z] = VoxelData.airID;
+            //             }
+            //         }
+            //     }   
+            // }
 #endregion
 
 #region GenerateTrees
@@ -166,6 +167,51 @@ namespace Generation
             }
             #endregion
 
+            random = new System.Random((xPos * zPos) / Noise.Seed);
+            //GenerateCave
+            if (random.Next(0, 100) < 15)
+            {
+                var cavePos = new Vector3Int(random.Next(0, VoxelData.chunkWidth - 1), random.Next(0, VoxelData.chunkHeight - 192), random.Next(0, VoxelData.chunkWidth - 1));
+
+                var cave = CaveGenerator.GenerateCave(xPos, zPos, cavePos.x, cavePos.y, cavePos.z);
+            
+                foreach (var vec3 in cave)
+                {
+                    var pos = vec3 + cavePos;
+
+                    if (pos.y > VoxelData.chunkHeight - 1 || pos.y < 0)
+                        continue;
+                
+                    if (pos.x < 0 || pos.x > VoxelData.chunkWidth - 1 
+                                  || pos.z < 0 || pos.z > VoxelData.chunkWidth - 1)
+                    {
+                        var chunkX = Mathf.FloorToInt((float)(pos.x) / VoxelData.chunkWidth);
+                        var chunkZ = Mathf.FloorToInt((float)(pos.z) / VoxelData.chunkWidth);
+            
+                        chunkX += xPos / VoxelData.chunkWidth;
+                        chunkZ += zPos / VoxelData.chunkWidth;
+            
+                        Vector2Int chunkPos = new Vector2Int(chunkX, chunkZ);
+                
+                        if(!additionalChunkData.ContainsKey(chunkPos))
+                            additionalChunkData.Add(chunkPos, new AdditionalChunkData(chunkPos));
+                        
+                        BlockData data = new BlockData()
+                        {
+                            x = (pos.x + VoxelData.chunkWidth * 10000) % VoxelData.chunkWidth,
+                            y = (pos.y + VoxelData.chunkHeight * 10000) % VoxelData.chunkHeight,
+                            z = (pos.z + VoxelData.chunkWidth * 10000) % VoxelData.chunkWidth,
+                            blockID = VoxelData.airID
+                        };
+                        additionalChunkData[chunkPos].blockData.Add(data);
+                    }
+                    else
+                        voxelMap[pos.x, pos.y, pos.z] = VoxelData.airID;
+                }
+            }
+            
+            
+            
 #region Bottom Layers
 
             for (int x = 0; x < VoxelData.chunkWidth; x++)

@@ -442,6 +442,49 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 223604867}
   m_CullTransparentMesh: 1
+--- !u!1 &224729647
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 224729649}
+  - component: {fileID: 224729648}
+  m_Layer: 0
+  m_Name: PathDrawer
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &224729648
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 224729647}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 81c1f48467fa45b4a86baabe6658ef57, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!4 &224729649
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 224729647}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 36.33995, y: -7.780259, z: -31.28368}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 15
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &412537102
 GameObject:
   m_ObjectHideFlags: 0
@@ -2243,11 +2286,11 @@ MonoBehaviour:
   chunkPrefab: {fileID: 5948713939620981018, guid: 071383de1fdfc88479ba2c08ccc226b1, type: 3}
   loadAroundPlayer: 1
   autoStart: 1
-  loadRange: 15
+  loadRange: 10
   player: {fileID: 1578896981}
   maxLoadingChunks: 10
   maxChunksToStartPerFrame: 1
-  additionalDataLoadRange: 5
+  additionalDataLoadRange: 10
 --- !u!4 &1931250891
 Transform:
   m_ObjectHideFlags: 0

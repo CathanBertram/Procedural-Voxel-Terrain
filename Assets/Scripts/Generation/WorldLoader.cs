@@ -275,6 +275,7 @@ namespace Generation
             {
                 case LoadMode.Default:            
                     var chunk = GameObject.Instantiate(chunkPrefab, new Vector3(worldPos.x, 0, worldPos.y), Quaternion.identity).GetComponent<Chunk>();
+                    chunk.onFinishedGeneration += OnFinishGeneration;
                     chunk.Generate(chunkPos);
                     loadedChunks.Add(chunkPos, chunk);
                     //RebuildAdjacentChunkMeshes(chunkPos);
