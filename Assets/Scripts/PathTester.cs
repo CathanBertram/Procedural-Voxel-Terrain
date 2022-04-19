@@ -3,15 +3,18 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
+using Random = System.Random;
 
 public class PathTester : MonoBehaviour
 {
-    public List<Vector3Int> path = new List<Vector3Int>();
+    public List<Vector3> path = new List<Vector3>();
     public int seed = 1337;
     public int sphereSize = 1;
     public int lineThickness = 2;
     public int zaxPriority;
     public PathType pathType;
+    public int angleConstraint;
+    public NoiseSettings noiseSettings;
     public void GeneratePath()
     {
         switch (pathType)
@@ -35,7 +38,11 @@ public class PathTester : MonoBehaviour
                 path = PathGenerator.DrunkConservativeEmuPathGeneration(new System.Random(seed), Vector3Int.zero);
                 break;
             case PathType.PerlinWorm:
-                path = PathGenerator.PerlinWormPathGeneration(new System.Random(seed), Vector3Int.zero);
+                path = PathGenerator.PerlinWormPathGeneration(new System.Random(seed), Vector3Int.zero, angleConstraint, noiseSettings);
+                break;
+            case PathType.AngleConstrained:
+                path = PathGenerator.AngleConstrainedPathGeneration(new System.Random(seed), Vector3Int.zero,
+                    angleConstraint);
                 break;
             default:
                 throw new ArgumentOutOfRangeException();

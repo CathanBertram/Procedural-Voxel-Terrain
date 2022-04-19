@@ -7,11 +7,11 @@ using UnityEngine;
 
 public class PathDrawer : MonoBehaviour
 {
-    public static List<KeyValuePair<Vector3Int, List<Vector3Int>>> kvpQueue =
-        new List<KeyValuePair<Vector3Int, List<Vector3Int>>>();
+    public static List<KeyValuePair<Vector3Int, List<Vector3>>> kvpQueue =
+        new List<KeyValuePair<Vector3Int, List<Vector3>>>();
     
-    public Dictionary<Vector3Int, List<Vector3Int>> paths =
-        new Dictionary<Vector3Int, List<Vector3Int>>();
+    public Dictionary<Vector3Int, List<Vector3>> paths =
+        new Dictionary<Vector3Int, List<Vector3>>();
 
     private int index = 0;
 
