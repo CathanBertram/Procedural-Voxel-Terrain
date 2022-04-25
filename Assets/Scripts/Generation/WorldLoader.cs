@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using Blocks;
@@ -53,7 +54,9 @@ namespace Generation
         [SerializeField] private int additionalDataLoadRange;
         private static WorldLoader instance;
         public static WorldLoader Instance => instance;
-    
+        private bool started = false;
+
+        public bool generateMeshes;
         private void Awake()
         {
             if (instance != null && instance != this)
@@ -74,7 +77,7 @@ namespace Generation
             Statics.onStartWorld -= StartWorld;
         }
 
-        private void Start()
+        public void OnStart()
         {
             player.SetActive(false);
             loadedChunks = new Dictionary<Vector2Int, Chunk>();
@@ -86,17 +89,23 @@ namespace Generation
 
             UnloadChunks();
             LoadChunks();
-            
-            // for (int x = 0; x < loadRange; x++)
-            // {
-            //     for (int z = 0; z < loadRange; z++)
-            //     {
-            //         var xPos = x * VoxelData.chunkWidth;
-            //         var zPos = z * VoxelData.chunkWidth;
-            //         
-            //         GenerateChunk(xPos, zPos);
-            //     }
-            // }
+
+            started = true;
+        }
+
+        public void Unload()
+        {
+            foreach (var item in loadedChunks)
+            {
+                item.Value.DestroyMesh();
+                DestroyImmediate(item.Value.gameObject);
+            }
+            loadedChunks.Clear();
+            renderingChunks.Clear();
+            loadingChunkInfos.Clear();
+            chunkLoadQueue.Clear();
+            additionalChunkData.Clear();
+            isInitialLoad = true;
         }
         public byte GetBlockAtIndex(Vector2Int chunkPos, Vector3Int blockPos)
         {
@@ -138,6 +147,8 @@ namespace Generation
         }
         private void Update()
         {
+            //if (!started) return;
+            
             for (int i = 0; i < maxChunksToStartPerFrame; i++)
             {
                 CycleChunkQueue();
@@ -160,15 +171,23 @@ namespace Generation
         
         public bool TryGetChunkAtPos(int x, int z, out Chunk chunk)
         {
-            chunk = null;
-            var pos = new Vector2Int(x, z);
-            if (loadedChunks.ContainsKey(pos))
+            try
             {
-                chunk = loadedChunks[pos];
-                return true;
-            }
+                chunk = null;
+                var pos = new Vector2Int(x, z);
+                if (loadedChunks.ContainsKey(pos))
+                {
+                    chunk = loadedChunks[pos];
+                    return true;
+                }
 
-            return false;
+                return false;
+            }
+            catch (Exception e)
+            {
+                chunk = null;
+                return false;
+            }
         }
         
         private void UnloadChunks()
@@ -225,7 +244,9 @@ namespace Generation
                         chunksToLoad.Add(pos);
 
                     if (InsideCircle(pos, loadRange) && !renderingChunks.Contains(pos) && !isInitialLoad)
-                    {
+                    {                           
+                        if (!generateMeshes) continue;
+
                         if (TryGetChunkAtPos(pos.x, pos.y, out var chunk))
                         {
                             chunk.RebuildMesh();
@@ -342,8 +363,9 @@ namespace Generation
                 chunksToRender.Add(chunkPos);
             }
             
-            if (loadingChunks == 0 && chunkLoadQueue.Count == 0)
+            if (loadingChunks == 0 && chunkLoadQueue.Count == 0 && generateMeshes)
             {
+
                 foreach (var item in chunksToRender)
                 {
                     if (TryGetChunkAtPos(item.x, item.y, out var c))
@@ -411,8 +433,8 @@ namespace Generation
         }
         public void RebuildAdjacentChunkMeshes(Vector2Int chunkPos)
         {
-            if (isInitialLoad) return;
-
+            if (isInitialLoad || !generateMeshes) return;
+            
             Chunk c;
             
             if (TryGetChunkAtPos(chunkPos.x - 1, chunkPos.y, out c) && InsideCircle(chunkPos.x - 1, chunkPos.y))

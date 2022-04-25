@@ -18,6 +18,9 @@ public static class Statics
     public static event Action<int> onBroadcastLoadingCount;
 
     public static void OnBroadcastLoadingCount(int count) { onBroadcastLoadingCount?.Invoke(count); }
+
+    public static event Action onReset;
+    public static void OnReset(){onReset?.Invoke();}
 }
 
 public struct MeshData

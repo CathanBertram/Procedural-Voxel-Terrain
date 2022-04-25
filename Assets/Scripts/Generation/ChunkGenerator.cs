@@ -23,7 +23,7 @@ namespace Generation
         public static byte[,,] GenerateVoxelMap(int xPos, int zPos)
         {
             //Seed Random for all random operations
-            System.Random random = new System.Random(Noise.Seed + xPos + zPos);
+            System.Random random = new System.Random(Noise.Seed + xPos * xPos + zPos * zPos);
             Biome biome = GetBiome(xPos, zPos);
 
 #region Empty
@@ -167,9 +167,9 @@ namespace Generation
             }
             #endregion
 
-            random = new System.Random((xPos * zPos) / Noise.Seed);
+            random = new System.Random(((xPos * xPos) * (zPos * zPos)) / Noise.Seed);
             //GenerateCave
-            if (random.Next(0, 100) < 15)
+            if (random.Next(0, 100) < 5)
             {
                 var cavePos = new Vector3Int(random.Next(0, VoxelData.chunkWidth - 1), random.Next(0, VoxelData.chunkHeight - 192), random.Next(0, VoxelData.chunkWidth - 1));
 

@@ -9,13 +9,15 @@ public static class CaveGenerator
 {
     public static HashSet<Vector3Int> GenerateCave(int chunkX, int chunkZ, int xPos, int yPos, int zPos)
     {
-        System.Random random = new System.Random(Noise.Seed + chunkX + chunkZ + xPos + yPos + zPos);
+        System.Random random = new System.Random(Noise.Seed + chunkX * chunkX + chunkZ * chunkZ + xPos + yPos + zPos);
         var path = PathGenerator.PerlinWormPathGeneration(random, new Vector3Int(xPos + chunkX, yPos, zPos + chunkZ), 15);
 
+
+        FastNoise fn = Noise.noiseSettings3D.CreateFastNoise();
         HashSet<Vector3Int> cave = new HashSet<Vector3Int>();
         for (int i = 0; i < path.Count; i++)
         {
-            GetPointsInSphere(cave, path[i], 3);
+            GetPointsInSphere(cave, path[i], Mathf.RoundToInt(Easing.Linear(0f, 10f, 0.5f * (1 + fn.GetNoise(path[i].x, path[i].y, path[i].z)))));
         }
         return cave;
     }

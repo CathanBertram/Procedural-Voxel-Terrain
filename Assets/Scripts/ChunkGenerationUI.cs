@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Generation;
 using TMPro;
 using UnityEngine;
+using UnityEngine.PlayerLoop;
 using UnityEngine.UI;
 using Object = System.Object;
 
@@ -21,7 +22,6 @@ public class ChunkGenerationUI : MonoBehaviour
 
     private void Start()
     {
-        chunkDict = new Dictionary<Vector2Int, Image>();
         startButton.gameObject.SetActive(false);
         Cursor.lockState = CursorLockMode.Confined;
         Cursor.visible = true;
@@ -35,6 +35,7 @@ public class ChunkGenerationUI : MonoBehaviour
         Statics.onStartChunkGen += OnStartChunkGen;
         Statics.onChunkGenerated += OnChunkGenerated;
         Statics.onBroadcastLoadingCount += GetLoadingCount;
+        Statics.onReset += OnReset;
     }
 
     private void OnDisable()
@@ -43,10 +44,27 @@ public class ChunkGenerationUI : MonoBehaviour
         Statics.onStartChunkGen -= OnStartChunkGen;
         Statics.onChunkGenerated -= OnChunkGenerated;
         Statics.onBroadcastLoadingCount -= GetLoadingCount;
+        Statics.onReset -= OnReset;
     }
 
+    private void OnReset()
+    {
+        foreach (var item in chunkDict)
+        {
+            Destroy(item.Value);
+        }
+
+        numberOfLoadedChunks = 0;
+        chunkDict.Clear();
+        startButton.gameObject.SetActive(false);
+
+        seedText.text = $"Seed: {Noise.Seed}";
+    }
     public void OnStartChunkGen(Vector2Int chunkPos)
     {
+        if (chunkDict == null)
+            chunkDict = new Dictionary<Vector2Int, Image>();
+        
         var image = Instantiate(imagePrefab, transform);
         image.rectTransform.anchoredPosition = chunkPos * 10;
         
@@ -60,6 +78,9 @@ public class ChunkGenerationUI : MonoBehaviour
     }
     public void OnChunkGenerated(Vector2Int chunkPos)
     {
+        if (chunkDict == null)
+            chunkDict = new Dictionary<Vector2Int, Image>();
+
         if (chunkDict.ContainsKey(chunkPos))
             chunkDict[chunkPos].color = Color.green;
         numberOfLoadedChunks++;
