@@ -264,12 +264,14 @@ namespace Generation
             if(loadAroundPlayer)
                 chunksToLoad = chunksToLoad.OrderBy(x => Vector2Int.Distance(previousPlayerPos, x)).ToList();
 
+            numLoading = chunksToLoad.Count;
             foreach (var item in chunksToLoad)
             {
                 GenerateChunk(item);
             }
         }
-        
+
+        private int numLoading;
         private void GenerateChunk(int x, int z)
         {
             var chunk = GameObject.Instantiate(chunkPrefab, new Vector3(x, 0, z), Quaternion.identity).GetComponent<Chunk>();
@@ -352,7 +354,7 @@ namespace Generation
         
             loadingChunkInfos.Remove(chunkPos);
             loadingChunks--;
-
+            numLoading--;
             RebuildAdjacentChunkMeshes(chunkPos);
 
             chunk.onFinishedGeneration = null;
@@ -363,7 +365,7 @@ namespace Generation
                 chunksToRender.Add(chunkPos);
             }
             
-            if (loadingChunks == 0 && chunkLoadQueue.Count == 0)
+            if (loadingChunks == 0 && chunkLoadQueue.Count == 0 && loadMode == LoadMode.Threaded)
             {
                 if (generateMeshes)
                 {
@@ -379,6 +381,11 @@ namespace Generation
                 chunksToRender.Clear();
                 chunksToRender = null;
                 isInitialLoad = false;
+                Statics.OnFinishInitialGeneration(gameObject);
+            }
+
+            if (loadMode == LoadMode.Default && numLoading == 0)
+            {
                 Statics.OnFinishInitialGeneration(gameObject);
             }
         }
