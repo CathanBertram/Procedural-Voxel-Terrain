@@ -87,7 +87,7 @@ public class ChunkGenerationUI : MonoBehaviour
         chunkCountText.text = $"Number of Chunks Loading: {numberOfLoadedChunks}/{numberOfChunksToLoad}";
 
     }
-    public void OnFinishInitialGeneration()
+    public void OnFinishInitialGeneration(GameObject obj)
     {
         if (WorldLoader.Instance.autoStart)
             StartWorld();

@@ -29,9 +29,9 @@ public class GeneratorSettings : MonoBehaviour
     public int treeSpawnChance;
     private void Awake()
     {
-        Noise.Seed = seed;
-        noiseSettings2D.seed = seed;
-        noiseSettings3D.seed = seed;
+        //Noise.Seed = seed;
+        noiseSettings2D.seed = Noise.Seed;
+        noiseSettings3D.seed = Noise.Seed;
         Noise.noiseSettings2D = noiseSettings2D;
         Noise.noiseSettings3D = noiseSettings3D;
 

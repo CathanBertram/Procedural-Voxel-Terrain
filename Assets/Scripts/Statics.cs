@@ -4,8 +4,8 @@ using UnityEngine;
 
 public static class Statics
 {
-    public static event Action onFinishInitialGeneration;
-    public static void OnFinishInitialGeneration() { onFinishInitialGeneration?.Invoke(); }
+    public static event Action<GameObject> onFinishInitialGeneration;
+    public static void OnFinishInitialGeneration(GameObject obj) { onFinishInitialGeneration?.Invoke(obj); }
 
     public static event Action onStartWorld;
     public static void OnStartWorld(){onStartWorld?.Invoke();}

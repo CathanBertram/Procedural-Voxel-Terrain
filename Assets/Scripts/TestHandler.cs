@@ -8,12 +8,12 @@ using Unity.VisualScripting;
 using UnityEditor;
 using UnityEditor.Experimental.TerrainAPI;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using Debug = UnityEngine.Debug;
 
 public class TestHandler : MonoBehaviour
 {
     [SerializeField] private bool autoStart;
-    [SerializeField] private WorldLoader worldLoader;
     [SerializeField] private int testIterations;
     private Stopwatch st;
     private int iter;
@@ -28,6 +28,7 @@ public class TestHandler : MonoBehaviour
         st = new Stopwatch();
         Statics.onFinishInitialGeneration += OnFinishGeneration;
         Noise.Seed = iter + 1;
+        //Noise.Seed = 1;
         StartLoad();
     }
 
@@ -35,29 +36,43 @@ public class TestHandler : MonoBehaviour
     {
         st = new Stopwatch();
         st.Start();
-        worldLoader.OnStart();
+        SceneManager.LoadScene(0, LoadSceneMode.Additive);
     }
-    private void OnFinishGeneration()
-    {        
+    private void OnFinishGeneration(GameObject obj)
+    {
         st.Stop();
+        Debug.Log(st.ElapsedMilliseconds);
+
         if (!test) return;
 
+        StartCoroutine(ResetForNextIter(obj));
+    }
+
+    private IEnumerator ResetForNextIter(GameObject obj)
+    {
+
+        var op = SceneManager.UnloadSceneAsync(obj.scene);
+        while (!op.isDone)
+        {
+            yield return new WaitForEndOfFrame();
+        }
+
         testResults.Add(new TestResult(Noise.Seed, st.ElapsedMilliseconds));
-        worldLoader.Unload();
 
         iter++;
 
         if (iter >= testIterations)
         {
             SaveResults();
-            return;
         }
-        st.Reset();
-        Noise.Seed = iter + 1;
-        Statics.OnReset();
-        StartLoad();
+        else
+        {
+            st.Reset();
+            Noise.Seed = iter + 1;
+            Statics.OnReset();
+            StartLoad();
+        }
     }
-
     public void SaveResults()
     {
         var path = Application.dataPath + filePath;
