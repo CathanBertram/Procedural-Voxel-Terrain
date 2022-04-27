@@ -15,7 +15,6 @@ public class TestHandler : MonoBehaviour
 {
     [SerializeField] private bool autoStart;
     [SerializeField] private int testIterations;
-    private Stopwatch st;
     private int iter;
     [SerializeField] private string filePath;
     private List<TestResult> testResults;
@@ -24,8 +23,8 @@ public class TestHandler : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        Statics.onAddTestResult += AddTestResult;
         testResults = new List<TestResult>();
-        st = new Stopwatch();
         Statics.onFinishInitialGeneration += OnFinishGeneration;
         Noise.Seed = iter + 1;
         //Noise.Seed = 1;
@@ -34,14 +33,10 @@ public class TestHandler : MonoBehaviour
 
     private void StartLoad()
     {
-        st = new Stopwatch();
-        st.Start();
         SceneManager.LoadScene(0, LoadSceneMode.Additive);
     }
     private void OnFinishGeneration(GameObject obj)
     {
-        st.Stop();
-        Debug.Log(st.ElapsedMilliseconds);
 
         if (!test) return;
 
@@ -57,8 +52,6 @@ public class TestHandler : MonoBehaviour
             yield return new WaitForEndOfFrame();
         }
 
-        testResults.Add(new TestResult(Noise.Seed, st.ElapsedMilliseconds));
-
         iter++;
 
         if (iter >= testIterations)
@@ -67,7 +60,6 @@ public class TestHandler : MonoBehaviour
         }
         else
         {
-            st.Reset();
             Noise.Seed = iter + 1;
             Statics.OnReset();
             StartLoad();
@@ -91,25 +83,32 @@ public class TestHandler : MonoBehaviour
         
         TextWriter tw = new StreamWriter(path, false);
         
-        tw.WriteLine("Seed,ElapsedTime(ms)");
+        tw.WriteLine("Seed,X Position,Y Position,ElapsedTime(ms)");
 
         foreach (var result in testResults)
         {
-            tw.WriteLine($"{result.seed},{result.milliseconds}");
+            tw.WriteLine($"{result.seed},{result.chunkPos.x},{result.chunkPos.y},{result.milliseconds}");
         }
         
         tw.Close();
         
         Debug.Log("Results Saved");
     }
+
+    private void AddTestResult(Vector2Int pos, long milliseconds)
+    {
+        testResults.Add(new TestResult(Noise.Seed, pos, milliseconds));
+    }
     public struct TestResult
     {
         public int seed;
+        public Vector2Int chunkPos;
         public long milliseconds;
 
-        public TestResult(int _seed, long _milliseconds)
+        public TestResult(int _seed, Vector2Int _chunkPos, long _milliseconds)
         {
             seed = _seed;
+            chunkPos = _chunkPos;
             milliseconds = _milliseconds;
         }
     }

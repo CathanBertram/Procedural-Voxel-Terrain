@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
@@ -20,6 +21,7 @@ namespace Generation
         private bool isRendering = false;
         int vertexIndex = 0;
 
+        private Stopwatch st = new Stopwatch();
         // byte 32768 short 65336 int 137000
         private byte[,,] voxelMap = new byte[chunkWidth, chunkHeight, chunkWidth];
 
@@ -126,6 +128,7 @@ namespace Generation
         }
         public void GenerateThreaded(Vector2Int _chunkPos)
         {
+            st.Start();
             chunkPos = _chunkPos;
             gameObject.name = $"Chunk {chunkPos.x}, {chunkPos.y}";
             RequestVoxelMap(OnVoxelMapReceived);
@@ -167,7 +170,9 @@ namespace Generation
         {
             voxelMap = _voxelMap;
             onFinishedGeneration(chunkPos, this);
-
+            st.Stop();
+            
+            Statics.OnAddTestResult(chunkPos, st.ElapsedMilliseconds);
             //RequestMeshData(OnMeshDataReceived);
         }
 
