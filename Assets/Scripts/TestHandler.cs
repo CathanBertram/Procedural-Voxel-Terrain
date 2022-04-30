@@ -91,7 +91,7 @@ public class TestHandler : MonoBehaviour
 
         foreach (var result in testResults)
         {
-            tw.WriteLine($"{result.seed},{result.chunkPos.x},{result.chunkPos.y},{result.milliseconds}");
+            tw.WriteLine($"{result.seed},{result.milliseconds}");
         }
 
         tw.Close();
@@ -132,9 +132,15 @@ public class TestHandler : MonoBehaviour
         Debug.Log("Results Saved");
     }
 
-    private void AddTestResult(Vector2Int pos, long milliseconds)
+    public void AddTestResult(Vector2Int pos, long milliseconds)
     {
         testResults.Add(new TestResult(Noise.Seed, milliseconds));
+    }
+    public void AddTestResult(int seed, long milliseconds)
+    {
+        if (testResults == null)
+            testResults = new List<TestResult>();
+        testResults.Add(new TestResult(seed, milliseconds));
     }
     public struct TestResult
     {

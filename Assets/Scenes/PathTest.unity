@@ -707,11 +707,11 @@ MonoBehaviour:
   - {x: 142.29018, y: 177.58267, z: 96.82122}
   - {x: 143.28856, y: 177.62427, z: 96.859825}
   - {x: 144.26358, y: 177.82576, z: 96.7663}
-  seed: 1790
+  seed: 100
   sphereSize: 2
   lineThickness: 4
   zaxPriority: 2
-  pathType: 0
+  pathType: 6
   angleConstraint: 15
   noiseSettings:
     noiseType: 5
@@ -774,9 +774,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   autoStart: 0
-  worldLoader: {fileID: 0}
   testIterations: 0
-  filePath: 
+  filePath: 1235
   test: 0
 --- !u!4 &1224025961
 Transform:

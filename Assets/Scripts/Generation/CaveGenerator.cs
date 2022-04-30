@@ -21,7 +21,16 @@ public static class CaveGenerator
         }
         return cave;
     }
-
+    public static HashSet<Vector3Int> GenerateCave(int seed, List<Vector3> path, NoiseSettings noiseSettings)
+    {
+        FastNoise fn = noiseSettings.CreateFastNoise();
+        HashSet<Vector3Int> cave = new HashSet<Vector3Int>();
+        for (int i = 0; i < path.Count; i++)
+        {
+            GetPointsInSphere(cave, path[i], Mathf.RoundToInt(Easing.Linear(0f, 10f, 0.5f * (1 + fn.GetNoise(path[i].x, path[i].y, path[i].z)))));
+        }
+        return cave;
+    }
     public static void GetPointsInSphere(HashSet<Vector3Int> cave, Vector3 origin, int radius)
     {
         for (int x = -radius; x < radius; x++)

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using UnityEditor;
 using UnityEngine;
+using Debug = UnityEngine.Debug;
 using Random = System.Random;
 
 public class PathTester : MonoBehaviour
@@ -22,17 +23,20 @@ public class PathTester : MonoBehaviour
     public void Test()
     {
         Stopwatch totalST = new Stopwatch();
+        totalST.Start();
         for (int i = 0; i < iterations; i++)
         {
             seed = iterations;
             Stopwatch st = new Stopwatch();
             st.Start();
             GeneratePath();
+            CaveGenerator.GenerateCave(i, path, noiseSettings);
             st.Stop();
-            testHandler.testResults.Add(new TestHandler.TestResult(seed, st.ElapsedMilliseconds));
+            testHandler.AddTestResult(seed, st.ElapsedMilliseconds);
         }
         
         totalST.Stop();
+        
         testHandler.finalResult = new TestHandler.TestResult(0, totalST.ElapsedMilliseconds);
         
         testHandler.SaveResults($"{pathType}PathGenerationTest");

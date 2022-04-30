@@ -246,8 +246,8 @@ public static class PathGenerator
         path.Add(curPos);
         bool continuePath = true;
         int iter = 0;
-
-        return path;
+        
+        return AngleConstrainedPathGeneration(random, origin, 90);
     }
     /// <summary>
     /// Picks a random direction within 60 degrees with each iteration
@@ -263,7 +263,8 @@ public static class PathGenerator
         bool continuePath = true;
         int iter = 0;
 
-        return path;
+        return AngleConstrainedPathGeneration(random, origin, 60);
+
     }
     /// <summary>
     /// Picks a random direction within 30 degrees with each iteration
@@ -279,7 +280,7 @@ public static class PathGenerator
         bool continuePath = true;
         int iter = 0;
 
-        return path;
+        return AngleConstrainedPathGeneration(random, origin, 30);
     }
     /// <summary>
     /// Uses perlin noise to determine which direction to move in at each iteration
