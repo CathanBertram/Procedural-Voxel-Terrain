@@ -18,7 +18,8 @@ public class TestHandler : MonoBehaviour
     private Stopwatch st;
     private int iter;
     [SerializeField] private string filePath;
-    private List<TestResult> testResults;
+    public List<TestResult> testResults;
+    public TestResult finalResult;
 
     [SerializeField] private bool test;
     // Start is called before the first frame update
@@ -76,13 +77,49 @@ public class TestHandler : MonoBehaviour
         
         TextWriter tw = new StreamWriter(path, false);
         
+        tw.WriteLine($"Total Time, {finalResult.milliseconds}");
+        tw.WriteLine();
+
         tw.WriteLine("Seed,ElapsedTime(ms)");
 
         foreach (var result in testResults)
         {
             tw.WriteLine($"{result.seed},{result.milliseconds}");
         }
+
+        tw.Close();
         
+        Debug.Log("Results Saved");
+    }
+    
+    public void SaveResults(string fileName)
+    {
+        var path = Application.dataPath + fileName;
+        path = Application.dataPath + "/../Assets/TestResults/" + fileName + ".csv";
+        if (File.Exists(path))
+        {
+            int iteration = 0;
+            while (true)
+            {
+                path = Application.dataPath + "/../Assets/TestResults/" + fileName + iteration + ".csv";
+                if (!File.Exists(path))
+                    break;
+                iteration++;
+            }
+        }
+        
+        TextWriter tw = new StreamWriter(path, false);
+        
+        tw.WriteLine($"Total Time, {finalResult.milliseconds}");
+        tw.WriteLine();
+
+        tw.WriteLine("Seed,ElapsedTime(ms)");
+
+        foreach (var result in testResults)
+        {
+            tw.WriteLine($"{result.seed},{result.milliseconds}");
+        }
+
         tw.Close();
         
         Debug.Log("Results Saved");

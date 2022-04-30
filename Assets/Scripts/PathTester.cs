@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using UnityEditor;
 using UnityEngine;
 using Random = System.Random;
@@ -15,6 +16,29 @@ public class PathTester : MonoBehaviour
     public PathType pathType;
     public int angleConstraint;
     public NoiseSettings noiseSettings;
+    
+    public int iterations;
+    public TestHandler testHandler;
+    public void Test()
+    {
+        Stopwatch totalST = new Stopwatch();
+        for (int i = 0; i < iterations; i++)
+        {
+            seed = iterations;
+            Stopwatch st = new Stopwatch();
+            st.Start();
+            GeneratePath();
+            st.Stop();
+            testHandler.testResults.Add(new TestHandler.TestResult(seed, st.ElapsedMilliseconds));
+        }
+        
+        totalST.Stop();
+        testHandler.finalResult = new TestHandler.TestResult(0, totalST.ElapsedMilliseconds);
+        
+        testHandler.SaveResults($"{pathType}PathGenerationTest");
+    }
+    
+    
     public void GeneratePath()
     {
         switch (pathType)
@@ -62,6 +86,10 @@ public class PatherTesterEditor : Editor
         if (GUILayout.Button("Generate Path"))
         {
             myTarget.GeneratePath();
+        }
+        if (GUILayout.Button("Test"))
+        {
+            myTarget.Test();
         }
     }
     private void OnSceneGUI()
