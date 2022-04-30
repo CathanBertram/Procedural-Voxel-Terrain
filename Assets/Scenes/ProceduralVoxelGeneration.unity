@@ -471,6 +471,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 81c1f48467fa45b4a86baabe6658ef57, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  enabled: 0
 --- !u!4 &224729649
 Transform:
   m_ObjectHideFlags: 0
@@ -2285,13 +2286,13 @@ MonoBehaviour:
   chunkMaterial: {fileID: 2100000, guid: f9d31a9dbb172844db2e49f8ec5de220, type: 2}
   chunkPrefab: {fileID: 5948713939620981018, guid: 071383de1fdfc88479ba2c08ccc226b1, type: 3}
   loadAroundPlayer: 1
-  autoStart: 1
+  autoStart: 0
   loadRange: 10
   player: {fileID: 1578896981}
   maxLoadingChunks: 10
   maxChunksToStartPerFrame: 1
   additionalDataLoadRange: 10
-  generateMeshes: 1
+  generateMeshes: 0
 --- !u!4 &1931250891
 Transform:
   m_ObjectHideFlags: 0
@@ -2305,54 +2306,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 3
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &1974754038
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1974754040}
-  - component: {fileID: 1974754039}
-  m_Layer: 0
-  m_Name: TestHandler
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &1974754039
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1974754038}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: dec2602bba648e243b79696997d008b6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  autoStart: 0
-  worldLoader: {fileID: 1931250890}
-  testIterations: 1
-  filePath: test
-  test: 0
---- !u!4 &1974754040
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1974754038}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -79.54158, y: 121.691925, z: 48.77919}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_RootOrder: 16
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1984582506
 GameObject:

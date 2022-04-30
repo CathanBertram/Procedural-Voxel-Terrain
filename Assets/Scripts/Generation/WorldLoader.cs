@@ -77,7 +77,7 @@ namespace Generation
             Statics.onStartWorld -= StartWorld;
         }
 
-        public void OnStart()
+        public void Start()
         {
             player.SetActive(false);
             loadedChunks = new Dictionary<Vector2Int, Chunk>();
@@ -264,12 +264,14 @@ namespace Generation
             if(loadAroundPlayer)
                 chunksToLoad = chunksToLoad.OrderBy(x => Vector2Int.Distance(previousPlayerPos, x)).ToList();
 
+            numLoading = chunksToLoad.Count;
             foreach (var item in chunksToLoad)
             {
                 GenerateChunk(item);
             }
         }
-        
+
+        private int numLoading;
         private void GenerateChunk(int x, int z)
         {
             var chunk = GameObject.Instantiate(chunkPrefab, new Vector3(x, 0, z), Quaternion.identity).GetComponent<Chunk>();
@@ -352,7 +354,7 @@ namespace Generation
         
             loadingChunkInfos.Remove(chunkPos);
             loadingChunks--;
-
+            numLoading--;
             RebuildAdjacentChunkMeshes(chunkPos);
 
             chunk.onFinishedGeneration = null;
@@ -363,20 +365,28 @@ namespace Generation
                 chunksToRender.Add(chunkPos);
             }
             
-            if (loadingChunks == 0 && chunkLoadQueue.Count == 0 && generateMeshes)
+            if (loadingChunks == 0 && chunkLoadQueue.Count == 0 && loadMode == LoadMode.Threaded)
             {
-
-                foreach (var item in chunksToRender)
+                if (generateMeshes)
                 {
-                    if (TryGetChunkAtPos(item.x, item.y, out var c))
+                    foreach (var item in chunksToRender)
                     {
-                        c.RebuildMesh();
+                        if (TryGetChunkAtPos(item.x, item.y, out var c))
+                        {
+                            c.RebuildMesh();
+                        }
                     }
                 }
+
                 chunksToRender.Clear();
                 chunksToRender = null;
                 isInitialLoad = false;
-                Statics.OnFinishInitialGeneration();
+                Statics.OnFinishInitialGeneration(gameObject);
+            }
+
+            if (loadMode == LoadMode.Default && numLoading == 0)
+            {
+                Statics.OnFinishInitialGeneration(gameObject);
             }
         }
 

@@ -14,7 +14,7 @@ public class PathDrawer : MonoBehaviour
         new Dictionary<Vector3Int, List<Vector3>>();
 
     private int index = 0;
-
+    public bool enabled;
     private void Update()
     {
         foreach (var kvp in kvpQueue)
@@ -23,6 +23,9 @@ public class PathDrawer : MonoBehaviour
             paths.Add(kvp.Key, kvp.Value);
         }
         kvpQueue.Clear();
+
+        if (!enabled)
+            paths.Clear();
     }
 
     private void OnDrawGizmos()
