@@ -175,6 +175,10 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 12205138603827336, guid: 3238d31e0c0753e4ca0ed9f069e36798, type: 3}
+      propertyPath: seed
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 12205138603827336, guid: 3238d31e0c0753e4ca0ed9f069e36798, type: 3}
       propertyPath: test
       value: 1
       objectReference: {fileID: 0}

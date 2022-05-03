@@ -133,17 +133,21 @@ namespace Generation
 
         public void AddAdditionalData(Vector2Int chunkPos, AdditionalChunkData additionalData)
         {
-            if (!TryGetChunkAtPos(chunkPos.x, chunkPos.y, out var chunk))
+            lock (additionalChunkData)
             {
-                if (additionalChunkData.ContainsKey(chunkPos))
-                    additionalChunkData[chunkPos].blockData.AddRange(additionalData.blockData);
+                if (!TryGetChunkAtPos(chunkPos.x, chunkPos.y, out var chunk))
+                {
+                    if (additionalChunkData.ContainsKey(chunkPos))
+                        additionalChunkData[chunkPos].blockData.AddRange(additionalData.blockData);
+                    else
+                        additionalChunkData.Add(chunkPos, additionalData);
+                }
                 else
-                    additionalChunkData.Add(chunkPos, additionalData);
+                {
+                    chunk.AddAdditionalData(additionalData);
+                }
             }
-            else
-            {
-                chunk.AddAdditionalData(additionalData);
-            }
+            
         }
         private void Update()
         {
@@ -367,6 +371,15 @@ namespace Generation
             
             if (loadingChunks == 0 && chunkLoadQueue.Count == 0 && loadMode == LoadMode.Threaded)
             {
+                foreach (var additionalData in additionalChunkData)
+                {
+                    if (TryGetChunkAtPos(additionalData.Key.x, additionalData.Key.y, out var c))
+                    {
+                        c.AddAdditionalData(additionalData.Value);
+                    }
+                }
+                additionalChunkData.Clear();
+                
                 if (generateMeshes)
                 {
                     foreach (var item in chunksToRender)

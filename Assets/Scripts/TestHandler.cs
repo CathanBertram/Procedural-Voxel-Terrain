@@ -21,13 +21,16 @@ public class TestHandler : MonoBehaviour
     public TestResult finalResult;
 
     [SerializeField] private bool test;
+
+    public int seed;
+    private int seedIter = 1;
     // Start is called before the first frame update
     void Start()
     {
         Statics.onAddTestResult += AddTestResult;
         testResults = new List<TestResult>();
         Statics.onFinishInitialGeneration += OnFinishGeneration;
-        Noise.Seed = iter + 1;
+        Noise.Seed = seed;
         //Noise.Seed = 1;
         StartLoad();
     }
@@ -38,15 +41,57 @@ public class TestHandler : MonoBehaviour
     }
     private void OnFinishGeneration(GameObject obj)
     {
-
         if (!test) return;
 
         StartCoroutine(ResetForNextIter(obj));
     }
 
+    private void SaveSS()
+    {
+        var width = Screen.width;
+        var height = Screen.height;
+        Rect rect = new Rect(0, 0, width, height);
+        RenderTexture renderTexture = new RenderTexture(width, height, 24);
+        Texture2D texture = new Texture2D(width, height, TextureFormat.RGBA32, false);
+
+        var cam = Camera.main;
+
+        cam.targetTexture = renderTexture;
+        cam.Render();
+ 
+        RenderTexture.active = renderTexture;
+        texture.ReadPixels(rect, 0, 0);
+        texture.Apply();
+        
+        byte[] bytes = texture.EncodeToPNG();
+        var path = Application.dataPath + "/../Assets/SavedTextures/";
+
+        if (!Directory.Exists(path))
+        {
+            Directory.CreateDirectory(path);
+        }
+        var textureName = Directory.GetFiles(path).Length.ToString();
+
+        File.WriteAllBytes($"{path}{seed}-{seedIter}.png", bytes);
+        
+        cam.targetTexture = null;
+        RenderTexture.active = null;
+ 
+        Destroy(renderTexture);
+        renderTexture = null;
+        Destroy(texture);
+        texture = null;
+    }
     private IEnumerator ResetForNextIter(GameObject obj)
     {
+        yield return new WaitForSeconds(1);
 
+        SeedTestDisplay.Instance.SetDisplayText($"{seed}-{seedIter}");
+        SaveSS();
+        SeedTestDisplay.Instance.ClearText();
+        
+        yield return new WaitForSeconds(1);
+        
         var op = SceneManager.UnloadSceneAsync(obj.scene);
         while (!op.isDone)
         {
@@ -54,14 +99,15 @@ public class TestHandler : MonoBehaviour
         }
 
         iter++;
-
+        seedIter++;
+        
         if (iter >= testIterations)
         {
-            SaveResults();
+            //SaveResults();
         }
         else
         {
-            Noise.Seed = iter + 1;
+            Noise.Seed = seed;
             Statics.OnReset();
             StartLoad();
         }
@@ -167,5 +213,6 @@ public class TestHandlerEditor : Editor
         {
             myTarget.SaveResults();
         }
+        
     }
 }
