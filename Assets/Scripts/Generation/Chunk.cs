@@ -172,7 +172,7 @@ namespace Generation
             onFinishedGeneration(chunkPos, this);
             st.Stop();
             
-            Statics.OnAddTestResult(chunkPos, st.ElapsedMilliseconds);
+            //Statics.OnAddTestResult(chunkPos, st.ElapsedMilliseconds);
             //RequestMeshData(OnMeshDataReceived);
         }
 
