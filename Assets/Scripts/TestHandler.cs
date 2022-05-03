@@ -129,9 +129,6 @@ public class TestHandler : MonoBehaviour
         }
         
         TextWriter tw = new StreamWriter(path, false);
-        
-        tw.WriteLine($"Total Time, {finalResult.milliseconds}");
-        tw.WriteLine();
 
         tw.WriteLine("Seed,ElapsedTime(ms)");
 
@@ -163,14 +160,11 @@ public class TestHandler : MonoBehaviour
         
         TextWriter tw = new StreamWriter(path, false);
         
-        tw.WriteLine($"Total Time, {finalResult.milliseconds}");
-        tw.WriteLine();
-
-        tw.WriteLine("Seed,ElapsedTime(ms)");
+        tw.WriteLine("Seed,ElapsedTime(ms),Path Length");
 
         foreach (var result in testResults)
         {
-            tw.WriteLine($"{result.seed},{result.milliseconds}");
+            tw.WriteLine($"{result.seed},{result.milliseconds}, {result.length}");
         }
 
         tw.Close();
@@ -178,25 +172,35 @@ public class TestHandler : MonoBehaviour
         Debug.Log("Results Saved");
     }
 
-    public void AddTestResult(Vector2Int pos, long milliseconds)
+    public void AddTestResult(Vector2Int pos, long milliseconds, int length)
     {
-        testResults.Add(new TestResult(Noise.Seed, milliseconds));
+        testResults.Add(new TestResult(Noise.Seed, milliseconds, length));
     }
-    public void AddTestResult(int seed, long milliseconds)
+    public void AddTestResult(int seed, long milliseconds, int length)
     {
         if (testResults == null)
             testResults = new List<TestResult>();
-        testResults.Add(new TestResult(seed, milliseconds));
+        testResults.Add(new TestResult(seed, milliseconds, length));
+    }
+
+    public void Clear()
+    {
+        if (testResults == null)
+            testResults = new List<TestResult>();
+        
+        testResults.Clear();
     }
     public struct TestResult
     {
         public int seed;
         public long milliseconds;
+        public int length;
 
-        public TestResult(int _seed, long _milliseconds)
+        public TestResult(int _seed, long _milliseconds, int _length)
         {
             seed = _seed;
             milliseconds = _milliseconds;
+            length = _length;
         }
     }
 }

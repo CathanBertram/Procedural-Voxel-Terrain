@@ -21,8 +21,8 @@ public static class Statics
 
     public static event Action onReset;
     public static void OnReset(){onReset?.Invoke();}
-    public static event Action<Vector2Int, long> onAddTestResult;
-    public static void OnAddTestResult(Vector2Int pos, long milliseconds) {onAddTestResult?.Invoke(pos, milliseconds);}
+    public static event Action<Vector2Int, long, int> onAddTestResult;
+    public static void OnAddTestResult(Vector2Int pos, long milliseconds, int length) {onAddTestResult?.Invoke(pos, milliseconds, length);}
 }
 
 public struct MeshData

@@ -22,26 +22,45 @@ public class PathTester : MonoBehaviour
     public TestHandler testHandler;
     public void Test()
     {
+        testHandler.Clear();
+        
         Stopwatch totalST = new Stopwatch();
         totalST.Start();
         for (int i = 0; i < iterations; i++)
         {
-            seed = iterations;
+            seed = i;
             Stopwatch st = new Stopwatch();
             st.Start();
             GeneratePath();
             CaveGenerator.GenerateCave(i, path, noiseSettings);
             st.Stop();
-            testHandler.AddTestResult(seed, st.ElapsedMilliseconds);
+            testHandler.AddTestResult(seed, st.ElapsedMilliseconds, path.Count);
         }
         
         totalST.Stop();
         
-        testHandler.finalResult = new TestHandler.TestResult(0, totalST.ElapsedMilliseconds);
+        testHandler.finalResult = new TestHandler.TestResult(0, totalST.ElapsedMilliseconds, path.Count);
         
         testHandler.SaveResults($"{pathType}PathGenerationTest");
     }
     
+    public void Test2()
+    {
+        pathType = PathType.DrunkRobot;
+        Test();
+        pathType = PathType.DrunkZax;
+        Test();
+        pathType = PathType.DrunkConservativeEmu;
+        Test();
+        pathType = PathType.DrunkLiberalEmu;
+        Test();
+        pathType = PathType.DrunkModerateEmu;
+        Test();
+        pathType = PathType.DrunkRobotEmu;
+        Test();
+        pathType = PathType.PerlinWorm;
+        Test();
+    }
     
     public void GeneratePath()
     {
@@ -94,6 +113,10 @@ public class PatherTesterEditor : Editor
         if (GUILayout.Button("Test"))
         {
             myTarget.Test();
+        }
+        if (GUILayout.Button("Test2"))
+        {
+            myTarget.Test2();
         }
     }
     private void OnSceneGUI()

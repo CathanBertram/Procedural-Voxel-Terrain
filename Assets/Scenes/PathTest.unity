@@ -728,7 +728,7 @@ MonoBehaviour:
     cellularDistanceFunction: 2
     gradientPerturbAmp: 1
     cellularReturnType: 0
-  iterations: 100
+  iterations: 1000
   testHandler: {fileID: 1224025960}
 --- !u!4 &1129793166
 Transform:
