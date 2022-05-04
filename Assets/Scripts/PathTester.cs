@@ -20,6 +20,10 @@ public class PathTester : MonoBehaviour
     
     public int iterations;
     public TestHandler testHandler;
+    public LineRenderer lineRenderer;
+    public List<LineRenderer> lineRenderers;
+    public GameObject startSphere;
+    public GameObject endSphere;
     public void Test()
     {
         testHandler.Clear();
@@ -94,8 +98,59 @@ public class PathTester : MonoBehaviour
             default:
                 throw new ArgumentOutOfRangeException();
         }
+        Centre();
+        CreateLineRenderers();
+    }
+
+    private void CreateLineRenderers()
+    {
+        startSphere.transform.position = path[0];
+        endSphere.transform.position = path[path.Count - 1];
+        
+        if (lineRenderers == null)
+            lineRenderers = new List<LineRenderer>();
+        
+        foreach (var lr in lineRenderers)
+        {
+           DestroyImmediate(lr.gameObject); 
+        }
+        lineRenderers.Clear();
+        for (int i = 1; i < path.Count; i++)
+        {
+            var lr = Instantiate(lineRenderer);
+            lineRenderers.Add(lr);
+            lr.positionCount = 2;
+            lr.SetPosition(0, path[i-1]);
+            lr.SetPosition(1, path[i]);
+        }
     }
     
+    private void Centre()
+    {
+        Vector3 centre = new Vector3();
+
+        foreach (var v3 in path)
+        {
+            centre += v3;
+        }
+
+        centre /= path.Count;
+        transform.position = centre;
+    }
+
+
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = Color.green;
+        Gizmos.DrawSphere(path[0], sphereSize);
+        Gizmos.color = Color.red;
+        Gizmos.DrawSphere(path[path.Count-1], sphereSize);
+        Gizmos.color = Color.blue;
+        for (int i = 1; i < path.Count ; i++)
+        {
+            Gizmos.DrawLine(path[i - 1], path[i]);
+        }
+    }
 }
 
 [CustomEditor(typeof(PathTester))]
